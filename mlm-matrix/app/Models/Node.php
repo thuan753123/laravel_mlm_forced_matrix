@@ -60,7 +60,7 @@ class Node extends Model
      */
     public function descendants()
     {
-        return $this->hasMany(Node::class, 'parent_id')->with('descendants');
+        return $this->hasMany(Node::class, 'parent_id');
     }
 
     /**

@@ -26,11 +26,11 @@ class AuthController extends Controller
         try {
             $data = $request->validated();
             
-            // Find sponsor by referral code
+            // Find sponsor by referral code (optional)
             $sponsor = null;
             if (!empty($data['referral_code'])) {
                 $sponsor = User::where('referral_code', $data['referral_code'])->first();
-                
+
                 if (!$sponsor) {
                     return response()->json([
                         'message' => 'Mã giới thiệu không hợp lệ.',
@@ -38,6 +38,7 @@ class AuthController extends Controller
                     ], 422);
                 }
             }
+            // If no referral code provided, sponsor will be null and PlacementService will handle placement
             
             // Create user
             $user = User::create([
@@ -144,25 +145,35 @@ class AuthController extends Controller
     {
         try {
             $user = $request->user();
-            
-            // Revoke current token
-            $user->currentAccessToken()->delete();
-            
+
+            // Clear session and logout user
+            Auth::logout();
+
+            // Clear session data
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            // Revoke current token if it's a personal access token
+            $token = $user->currentAccessToken();
+            if ($token && method_exists($token, 'delete')) {
+                $token->delete();
+            }
+
             Log::info('User logged out', [
                 'user_id' => $user->id,
                 'email' => $user->email,
             ]);
-            
+
             return response()->json([
                 'message' => 'Đăng xuất thành công.',
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Logout failed', [
                 'error' => $e->getMessage(),
                 'user_id' => $request->user()?->id,
             ]);
-            
+
             return response()->json([
                 'message' => 'Đăng xuất thất bại.',
             ], 500);
@@ -197,24 +208,27 @@ class AuthController extends Controller
     {
         try {
             $user = $request->user();
-            
-            // Revoke current token
-            $user->currentAccessToken()->delete();
-            
+
+            // Revoke current token if it's a personal access token
+            $currentToken = $user->currentAccessToken();
+            if ($currentToken && method_exists($currentToken, 'delete')) {
+                $currentToken->delete();
+            }
+
             // Create new token
             $token = $user->createToken('auth_token')->plainTextToken;
-            
+
             return response()->json([
                 'message' => 'Token đã được làm mới.',
                 'token' => $token,
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Token refresh failed', [
                 'error' => $e->getMessage(),
                 'user_id' => $request->user()?->id,
             ]);
-            
+
             return response()->json([
                 'message' => 'Làm mới token thất bại.',
             ], 500);

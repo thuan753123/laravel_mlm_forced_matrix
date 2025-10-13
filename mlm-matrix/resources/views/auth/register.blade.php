@@ -8,7 +8,7 @@
                 {{ __('ui.auth.register') }}
             </h2>
         </div>
-        <form class="mt-8 space-y-6" method="POST" action="{{ route('register') }}">
+        <form class="mt-8 space-y-6" method="POST" action="{{ route('register.post') }}">
             @csrf
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
@@ -58,4 +58,49 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Disable submit button
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Đang đăng ký...';
+
+        try {
+            const formData = new FormData(form);
+
+            const response = await fetch('{{ route("register.post") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Đăng ký thành công, redirect đến dashboard
+                window.location.href = '/dashboard';
+            } else {
+                // Hiển thị lỗi
+                alert(data.message || 'Đăng ký thất bại');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Đăng ký';
+            }
+        } catch (error) {
+            console.error('Register error:', error);
+            alert('Có lỗi xảy ra. Vui lòng thử lại.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Đăng ký';
+        }
+    });
+});
+</script>
 @endsection

@@ -66,7 +66,7 @@
                                     <span class="text-sm text-gray-700">
                                         {{ auth()->user()->fullname ?? auth()->user()->email }}
                                     </span>
-                                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                                    <form method="POST" action="{{ route('logout') }}" class="inline" id="logout-form">
                                         @csrf
                                         <button type="submit" class="text-sm text-gray-500 hover:text-gray-700">
                                             {{ __('ui.nav.logout') }}
@@ -120,6 +120,12 @@
                                 {{ __('ui.nav.config') }}
                             </a>
                         @endif
+                        <form method="POST" action="{{ route('logout') }}" class="block" id="mobile-logout-form">
+                            @csrf
+                            <button type="submit" class="mobile-nav-link w-full text-left">
+                                {{ __('ui.nav.logout') }}
+                            </button>
+                        </form>
                     @endauth
                 </div>
             </div>
@@ -147,5 +153,53 @@
     </style>
 
     @stack('scripts')
+
+    <script>
+        // Handle logout form submission
+        function handleLogout(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                try {
+                    const response = await fetch('{{ route("logout") }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Clear all cookies and redirect to login
+                        document.cookie.split(";").forEach(function(c) {
+                            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                        });
+
+                        // Clear local storage if exists
+                        localStorage.clear();
+                        sessionStorage.clear();
+
+                        // Redirect to login page
+                        window.location.href = '/login';
+                    } else {
+                        alert(data.message || 'Đăng xuất thất bại');
+                    }
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    // Force redirect anyway
+                    window.location.href = '/login';
+                }
+            });
+        }
+
+        // Handle both desktop and mobile logout forms
+        handleLogout('logout-form');
+        handleLogout('mobile-logout-form');
+    </script>
 </body>
 </html>

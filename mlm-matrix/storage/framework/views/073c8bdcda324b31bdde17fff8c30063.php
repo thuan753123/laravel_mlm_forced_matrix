@@ -7,7 +7,7 @@
 
             </h2>
         </div>
-        <form class="mt-8 space-y-6" method="POST" action="<?php echo e(route('login')); ?>">
+        <form class="mt-8 space-y-6" method="POST" action="<?php echo e(route('login.post')); ?>">
             <?php echo csrf_field(); ?>
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
@@ -45,6 +45,51 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Disable submit button
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Đang đăng nhập...';
+
+        try {
+            const formData = new FormData(form);
+
+            const response = await fetch('<?php echo e(route("login.post")); ?>', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Đăng nhập thành công, redirect đến dashboard
+                window.location.href = '/dashboard';
+            } else {
+                // Hiển thị lỗi
+                alert(data.message || 'Đăng nhập thất bại');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Đăng nhập';
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('Có lỗi xảy ra. Vui lòng thử lại.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Đăng nhập';
+        }
+    });
+});
+</script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/kentpc/Documents/GitHub/laravel_mlm_forced_matrix/mlm-matrix/resources/views/auth/login.blade.php ENDPATH**/ ?>

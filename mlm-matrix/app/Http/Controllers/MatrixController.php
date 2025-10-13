@@ -15,6 +15,26 @@ class MatrixController extends Controller
     ) {}
 
     /**
+     * Display matrix page.
+     */
+    public function index(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->node) {
+            // User chưa được đặt trong matrix, hiển thị trang chờ
+            return view('matrix.waiting', [
+                'user' => $user,
+                'message' => 'Bạn chưa được đặt trong ma trận. Vui lòng liên hệ admin để được hỗ trợ.'
+            ]);
+        }
+
+        $stats = $this->placementService->getMatrixStats($user);
+
+        return view('matrix.index', compact('user', 'stats'));
+    }
+
+    /**
      * Get current user's matrix information.
      */
     public function me(Request $request): JsonResponse
@@ -41,14 +61,14 @@ class MatrixController extends Controller
                 ],
                 'stats' => $stats,
                 'upline_count' => count($uplineChain),
-                'upline' => $uplineChain->map(function ($uplineUser) {
+                'upline' => array_map(function ($uplineUser) {
                     return [
                         'id' => $uplineUser->id,
                         'fullname' => $uplineUser->fullname,
                         'email' => $uplineUser->email,
                         'referral_code' => $uplineUser->referral_code,
                     ];
-                }),
+                }, $uplineChain),
             ]);
             
         } catch (\Exception $e) {
@@ -152,7 +172,7 @@ class MatrixController extends Controller
     {
         try {
             $user = $request->user();
-            $maxDepth = (int) $request->query('depth', 3);
+            $maxDepth = (int) $request->query('depth', 2); // Chỉ hiển thị 2 tầng
             
             $downline = $this->placementService->getDownline($user, $maxDepth);
             
@@ -219,7 +239,7 @@ class MatrixController extends Controller
             
             $config = config('mlm');
             $width = $config['width'];
-            $maxDepth = min(5, $config['max_depth']); // Limit for visualization
+            $maxDepth = min(1, $config['max_depth']); // Chỉ hiển thị 1 tầng
             
             $visualization = $this->buildVisualizationData($node, $width, $maxDepth);
             
@@ -248,6 +268,20 @@ class MatrixController extends Controller
      */
     private function buildVisualizationData($node, int $width, int $maxDepth): array
     {
+        // Get sponsor information
+        $sponsor = null;
+        if ($node->user->referred_by) {
+            $sponsorUser = User::find($node->user->referred_by);
+            if ($sponsorUser) {
+                $sponsor = [
+                    'id' => $sponsorUser->id,
+                    'fullname' => $sponsorUser->fullname,
+                    'email' => $sponsorUser->email,
+                    'referral_code' => $sponsorUser->referral_code,
+                ];
+            }
+        }
+
         $data = [
             'id' => $node->id,
             'user' => [
@@ -256,21 +290,22 @@ class MatrixController extends Controller
                 'email' => $node->user->email,
                 'referral_code' => $node->user->referral_code,
             ],
+            'sponsor' => $sponsor,
             'depth' => $node->depth,
             'position' => $node->position,
             'children' => array_fill(0, $width, null),
         ];
-        
+
         if ($maxDepth > 0) {
             $children = $node->children()->with('user')->orderBy('position')->get();
-            
+
             foreach ($children as $index => $child) {
                 if ($index < $width) {
                     $data['children'][$index] = $this->buildVisualizationData($child, $width, $maxDepth - 1);
                 }
             }
         }
-        
+
         return $data;
     }
 }

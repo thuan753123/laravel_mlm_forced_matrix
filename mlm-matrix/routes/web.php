@@ -32,11 +32,11 @@ Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 
 // Protected routes
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {
         return view('dashboard');
@@ -47,6 +47,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/', [MatrixController::class, 'index'])->name('matrix.index');
         Route::get('/tree', [MatrixController::class, 'tree'])->name('matrix.tree');
         Route::get('/stats', [MatrixController::class, 'stats'])->name('matrix.stats');
+        Route::get('/me', [MatrixController::class, 'me'])->name('matrix.me');
+        Route::get('/downline', [MatrixController::class, 'downline'])->name('matrix.downline');
+        Route::get('/visualization', [MatrixController::class, 'visualization'])->name('matrix.visualization');
     });
     
     // Order routes

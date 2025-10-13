@@ -1,13 +1,11 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="py-12">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
-                <h1 class="text-2xl font-bold mb-6">{{ __('ui.matrix_page.heading') }}</h1>
+                <h1 class="text-2xl font-bold mb-6"><?php echo e(__('ui.matrix_page.heading')); ?></h1>
                 
-                @auth
+                <?php if(auth()->guard()->check()): ?>
                     <!-- Matrix Stats -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                         <div class="bg-blue-50 p-6 rounded-lg">
@@ -70,7 +68,7 @@
                     <!-- Matrix Tree Visualization with D3.js -->
                     <div class="bg-white p-6 rounded-lg shadow mb-8">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold">{{ __('ui.matrix_page.visualization') }}</h3>
+                            <h3 class="text-lg font-semibold"><?php echo e(__('ui.matrix_page.visualization')); ?></h3>
 
                             <!-- D3.js Zoom Controls -->
                             <div class="zoom-controls flex items-center space-x-2 bg-gray-50 rounded-lg p-2">
@@ -158,21 +156,22 @@
                             </div>
                         </div>
                     </div>
-                @else
+                <?php else: ?>
                     <div class="text-center py-12">
                         <h2 class="text-3xl font-bold text-gray-900 mb-4">Vui lòng đăng nhập</h2>
                         <p class="text-lg text-gray-600 mb-8">Bạn cần đăng nhập để xem cây ma trận</p>
-                        <a href="{{ route('login') }}" class="inline-flex items-center px-6 py-3 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                            {{ __('ui.auth.login') }}
+                        <a href="<?php echo e(route('login')); ?>" class="inline-flex items-center px-6 py-3 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            <?php echo e(__('ui.auth.login')); ?>
+
                         </a>
                     </div>
-                @endauth
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
 
-@auth
+<?php if(auth()->guard()->check()): ?>
 <!-- Load D3.js from CDN -->
 <script src="https://d3js.org/d3.v7.min.js"></script>
 
@@ -1014,5 +1013,6 @@ async function loadDownlineList() {
     opacity: 0.5;
 }
 </style>
-@endauth
-@endsection
+<?php endif; ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/kentpc/Documents/GitHub/laravel_mlm_forced_matrix/mlm-matrix/resources/views/matrix/index.blade.php ENDPATH**/ ?>
