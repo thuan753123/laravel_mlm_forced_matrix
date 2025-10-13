@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('cycles', function (Blueprint $table) {
             $table->id();
             $table->string('period'); // daily, weekly, monthly
-            $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
+            $table->timestamp('starts_at')->useCurrent();
+            $table->timestamp('ends_at')->nullable();
             $table->timestamp('closed_at')->nullable();
             $table->timestamps();
             

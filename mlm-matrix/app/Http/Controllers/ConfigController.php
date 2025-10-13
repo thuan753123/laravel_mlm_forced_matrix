@@ -156,7 +156,7 @@ class ConfigController extends Controller
     /**
      * Validate configuration.
      */
-    public function validate(Request $request): JsonResponse
+    public function validateConfig(Request $request): JsonResponse
     {
         try {
             $data = $request->all();

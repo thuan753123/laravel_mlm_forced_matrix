@@ -42,8 +42,7 @@ return new class extends Migration
             $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
             $table->foreign('referred_by')->references('id')->on('users')->onDelete('set null');
             
-            // Check constraint for role
-            $table->check('role IN ("admin", "manager", "agent", "member")');
+            // Note: Check constraint for role validation is handled at application level
         });
     }
 
