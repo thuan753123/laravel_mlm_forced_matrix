@@ -1,14 +1,10 @@
 <?php
 
 return [
-    'width' => (int) env('MLM_WIDTH', 2),
-    'max_depth' => (int) env('MLM_MAX_DEPTH', 5),
+    'width' => (int) env('MLM_WIDTH', 10),
+    'max_depth' => (int) env('MLM_MAX_DEPTH', 1),
     'commissions' => [
-        1 => 0.10, // 10%
-        2 => 0.05, // 5%
-        3 => 0.03, // 3%
-        4 => 0.02, // 2%
-        5 => 0.01, // 1%
+        1 => 0.10, // 10% cho tầng 1 (direct downline)
     ],
     'spillover_mode' => env('MLM_SPILLOVER', 'bfs'),
     'placement_mode' => env('MLM_PLACEMENT', 'forced'),

@@ -19,138 +19,123 @@
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Sidebar Navigation Styles -->
+    <link href="{{ asset('css/sidebar.css') }}" rel="stylesheet">
+    
+    <!-- Page-specific styles -->
+    @stack('styles')
 </head>
 <body class="font-sans antialiased bg-gray-100">
-    <div class="min-h-screen">
-        <!-- Navigation -->
-        <nav class="bg-white shadow-lg">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex">
-                        <!-- Logo -->
-                        <div class="shrink-0 flex items-center">
-                            <a href="{{ route('dashboard') }}" class="text-xl font-bold text-gray-800">
-                                {{ __('ui.title') }}
-                            </a>
-                        </div>
-
-                        <!-- Navigation Links -->
-                        <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                                {{ __('ui.nav.dashboard') }}
-                            </a>
-                            <a href="{{ route('matrix.index') }}" class="nav-link {{ request()->routeIs('matrix.*') ? 'active' : '' }}">
-                                {{ __('ui.nav.matrix') }}
-                            </a>
-                            <a href="{{ route('orders.index') }}" class="nav-link {{ request()->routeIs('orders.*') ? 'active' : '' }}">
-                                {{ __('ui.nav.orders') }}
-                            </a>
-                            <a href="{{ route('commissions.index') }}" class="nav-link {{ request()->routeIs('commissions.*') ? 'active' : '' }}">
-                                {{ __('ui.nav.commissions') }}
-                            </a>
-                            @auth
-                                @if(auth()->user()->canAccessAdmin())
-                                    <a href="{{ route('admin.config.index') }}" class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}">
-                                        {{ __('ui.nav.config') }}
-                                    </a>
-                                @endif
-                            @endauth
-                        </div>
-                    </div>
-
-                    <!-- Right side -->
-                    <div class="hidden sm:ml-6 sm:flex sm:items-center">
-                        @auth
-                            <div class="ml-3 relative">
-                                <div class="flex items-center space-x-4">
-                                    <span class="text-sm text-gray-700">
-                                        {{ auth()->user()->fullname ?? auth()->user()->email }}
-                                    </span>
-                                    <form method="POST" action="{{ route('logout') }}" class="inline" id="logout-form">
-                                        @csrf
-                                        <button type="submit" class="text-sm text-gray-500 hover:text-gray-700">
-                                            {{ __('ui.nav.logout') }}
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        @else
-                            <div class="flex items-center space-x-4">
-                                <a href="{{ route('login') }}" class="text-sm text-gray-500 hover:text-gray-700">
-                                    {{ __('ui.auth.login') }}
-                                </a>
-                                <a href="{{ route('register') }}" class="text-sm text-gray-500 hover:text-gray-700">
-                                    {{ __('ui.auth.register') }}
-                                </a>
-                            </div>
-                        @endauth
-                    </div>
-
-                    <!-- Mobile menu button -->
-                    <div class="-mr-2 flex items-center sm:hidden">
-                        <button type="button" class="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" aria-controls="mobile-menu" aria-expanded="false">
-                            <span class="sr-only">Open main menu</span>
-                            <!-- Hamburger icon -->
-                            <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+    <div class="min-h-screen flex">
+        @auth
+        <!-- Sidebar -->
+        <div id="sidebar">
+            <!-- Logo -->
+            <div class="sidebar-header">
+                <a href="{{ route('dashboard') }}" class="flex items-center">
+                    <span id="sidebar-title">{{ __('ui.title') }}</span>
+                </a>
+                <!-- Toggle Button -->
+                <button id="sidebar-toggle" type="button" aria-label="Toggle Sidebar">
+                    <svg id="sidebar-toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                    </svg>
+                </button>
             </div>
 
-            <!-- Mobile menu -->
-            <div class="sm:hidden" id="mobile-menu">
-                <div class="pt-2 pb-3 space-y-1">
-                    <a href="{{ route('dashboard') }}" class="mobile-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                        {{ __('ui.nav.dashboard') }}
+            <!-- Navigation Menu -->
+            <div class="sidebar-nav">
+                <nav class="space-y-2">
+                    <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" data-tooltip="{{ __('ui.nav.dashboard') }}">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h2a2 2 0 012 2v2H8V5z"></path>
+                        </svg>
+                        <span>{{ __('ui.nav.dashboard') }}</span>
                     </a>
-                    <a href="{{ route('matrix.index') }}" class="mobile-nav-link {{ request()->routeIs('matrix.*') ? 'active' : '' }}">
-                        {{ __('ui.nav.matrix') }}
+                    <a href="{{ route('matrix.index') }}" class="sidebar-link {{ request()->routeIs('matrix.*') ? 'active' : '' }}" data-tooltip="{{ __('ui.nav.matrix') }}">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2H8V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2h-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2H8v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2h-2v-2z"></path>
+                        </svg>
+                        <span>{{ __('ui.nav.matrix') }}</span>
                     </a>
-                    <a href="{{ route('orders.index') }}" class="mobile-nav-link {{ request()->routeIs('orders.*') ? 'active' : '' }}">
-                        {{ __('ui.nav.orders') }}
+                    <a href="{{ route('orders.index') }}" class="sidebar-link {{ request()->routeIs('orders.*') ? 'active' : '' }}" data-tooltip="{{ __('ui.nav.orders') }}">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l-1 12H6L5 9z"></path>
+                        </svg>
+                        <span>{{ __('ui.nav.orders') }}</span>
                     </a>
-                    <a href="{{ route('commissions.index') }}" class="mobile-nav-link {{ request()->routeIs('commissions.*') ? 'active' : '' }}">
-                        {{ __('ui.nav.commissions') }}
+                    <a href="{{ route('commissions.index') }}" class="sidebar-link {{ request()->routeIs('commissions.*') ? 'active' : '' }}" data-tooltip="{{ __('ui.nav.commissions') }}">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                        <span>{{ __('ui.nav.commissions') }}</span>
                     </a>
-                    @auth
-                        @if(auth()->user()->canAccessAdmin())
-                            <a href="{{ route('admin.config.index') }}" class="mobile-nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}">
-                                {{ __('ui.nav.config') }}
+                    @if(auth()->user()->canAccessAdmin())
+                        <!-- Admin Menu with Submenu -->
+                        <div class="admin-menu-section">
+                            <div class="sidebar-divider">
+                                <span>QUẢN TRỊ</span>
+                            </div>
+
+                            <a href="{{ route('admin.config.index') }}" class="sidebar-link {{ request()->routeIs('admin.config.*') ? 'active' : '' }}" data-tooltip="Cấu hình MLM">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span>Cấu hình MLM</span>
                             </a>
-                        @endif
-                        <form method="POST" action="{{ route('logout') }}" class="block" id="mobile-logout-form">
-                            @csrf
-                            <button type="submit" class="mobile-nav-link w-full text-left">
-                                {{ __('ui.nav.logout') }}
-                            </button>
-                        </form>
-                    @endauth
-                </div>
+
+                            <a href="{{ route('admin.policies.index') }}" class="sidebar-link {{ request()->routeIs('admin.policies.*') ? 'active' : '' }}" data-tooltip="Quản lý Chính sách">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span>Quản lý Chính sách</span>
+                            </a>
+
+                            <a href="{{ route('admin.commissions.index') }}" class="sidebar-link {{ request()->routeIs('admin.commissions.*') ? 'active' : '' }}" data-tooltip="Quản lý Hoa hồng">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Quản lý Hoa hồng</span>
+                            </a>
+                        </div>
+                    @endif
+                </nav>
             </div>
-        </nav>
+
+            <!-- User Info & Logout -->
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar">
+                        <span>{{ substr(auth()->user()->fullname ?? auth()->user()->email, 0, 1) }}</span>
+                    </div>
+                    <div class="sidebar-user-info">
+                        <p>{{ auth()->user()->fullname ?? auth()->user()->email }}</p>
+                    </div>
+                </div>
+                <form method="POST" action="{{ route('logout') }}" id="logout-form">
+                    @csrf
+                    <button type="submit" class="sidebar-logout">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        <span>{{ __('ui.nav.logout') }}</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        @endauth
 
         <!-- Page Content -->
-        <main>
+        <main id="main-content" class="flex-1 bg-gray-100 transition-all duration-300 ease-in-out">
             @yield('content')
         </main>
     </div>
-
-    <style>
-        .nav-link {
-            @apply inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition duration-150 ease-in-out;
-        }
-        .nav-link.active {
-            @apply border-indigo-500 text-gray-900;
-        }
-        .mobile-nav-link {
-            @apply block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition duration-150 ease-in-out;
-        }
-        .mobile-nav-link.active {
-            @apply bg-indigo-50 border-indigo-500 text-indigo-700;
-        }
-    </style>
 
     @stack('scripts')
 
@@ -200,6 +185,128 @@
         // Handle both desktop and mobile logout forms
         handleLogout('logout-form');
         handleLogout('mobile-logout-form');
+
+        @auth
+        // Sidebar toggle functionality
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarTitle = document.getElementById('sidebar-title');
+        const mainContent = document.getElementById('main-content');
+
+        // Utility functions
+        const saveSidebarState = (isCollapsed) => {
+            localStorage.setItem('sidebar-collapsed', isCollapsed.toString());
+        };
+
+        const getSidebarState = () => {
+            return localStorage.getItem('sidebar-collapsed') === 'true';
+        };
+
+        const updateSidebarWidth = () => {
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                // On mobile, use full width layout
+                sidebar.style.width = '100%';
+                sidebar.style.minWidth = '100%';
+                if (mainContent) {
+                    mainContent.style.marginLeft = '0';
+                }
+            } else {
+                // On desktop, use sidebar layout
+                if (sidebar.classList.contains('collapsed')) {
+                    sidebar.style.width = '64px';
+                    sidebar.style.minWidth = '64px';
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '64px';
+                    }
+                } else {
+                    sidebar.style.width = '256px';
+                    sidebar.style.minWidth = '256px';
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '256px';
+                    }
+                }
+            }
+        };
+
+        // Initialize sidebar state
+        const initializeSidebar = () => {
+            const isCollapsed = getSidebarState();
+            if (isCollapsed) {
+                sidebar.classList.add('collapsed');
+            }
+            updateSidebarWidth();
+        };
+
+        // Toggle sidebar function
+        const toggleSidebar = () => {
+            const isCollapsed = sidebar.classList.contains('collapsed');
+
+            if (isCollapsed) {
+                sidebar.classList.remove('collapsed');
+                saveSidebarState(false);
+            } else {
+                sidebar.classList.add('collapsed');
+                saveSidebarState(true);
+            }
+
+            // Update width after transition
+            setTimeout(updateSidebarWidth, 50);
+        };
+
+        // Handle window resize
+        const handleResize = () => {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                // On mobile, always use full width
+                sidebar.style.width = '100%';
+                sidebar.style.minWidth = '100%';
+                if (mainContent) {
+                    mainContent.style.marginLeft = '0';
+                }
+            } else {
+                // On desktop, use saved state
+                updateSidebarWidth();
+            }
+        };
+
+        // Close sidebar when clicking outside on mobile
+        const handleOutsideClick = (event) => {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile && !sidebar.contains(event.target) && sidebarToggle && !sidebarToggle.contains(event.target)) {
+                if (!sidebar.classList.contains('collapsed')) {
+                    sidebar.classList.add('collapsed');
+                    saveSidebarState(true);
+                    setTimeout(updateSidebarWidth, 50);
+                }
+            }
+        };
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeSidebar();
+
+            // Add event listeners
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            document.addEventListener('click', handleOutsideClick);
+            window.addEventListener('resize', handleResize);
+
+            // Update active states after page load
+            setTimeout(() => {
+                const activeLinks = document.querySelectorAll('.sidebar-link.active');
+                activeLinks.forEach(link => {
+                    // Ensure active state is properly applied
+                    if (sidebar.classList.contains('collapsed')) {
+                        link.classList.add('active');
+                    }
+                });
+            }, 100);
+        });
+        @endauth
     </script>
 </body>
 </html>

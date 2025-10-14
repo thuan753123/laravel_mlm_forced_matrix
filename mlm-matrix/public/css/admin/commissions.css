@@ -1,0 +1,559 @@
+/* ============================================
+   COMMISSION POLICIES MANAGEMENT STYLES - ENTERPRISE EDITION
+   Specific styles for commission policy management pages
+   Version: 2.0
+   ============================================ */
+
+/* ============================================
+   COMMISSION GRID LAYOUT
+   ============================================ */
+.commission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--space-xl);
+    margin-bottom: var(--space-2xl);
+}
+
+@media (max-width: 768px) {
+    .commission-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+    }
+}
+
+/* ============================================
+   COMMISSION CARD
+   ============================================ */
+.commission-card {
+    background: white;
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    transition: all var(--transition-base);
+    border: 1px solid var(--gray-100);
+    position: relative;
+}
+
+.commission-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-500) 0%, var(--secondary-500) 100%);
+    transition: height var(--transition-base);
+}
+
+.commission-card:hover {
+    box-shadow: var(--shadow-2xl);
+    transform: translateY(-4px);
+    border-color: var(--primary-200);
+}
+
+.commission-card:hover::before {
+    height: 8px;
+}
+
+/* ============================================
+   COMMISSION CARD HEADER
+   ============================================ */
+.commission-card-header {
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--secondary-500) 100%);
+    color: white;
+    padding: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.commission-card-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.commission-card-header h4 {
+    margin-bottom: var(--space-xs);
+    font-weight: 700;
+    font-size: var(--font-size-xl);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    position: relative;
+    z-index: 1;
+}
+
+.commission-card-header h4 i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(10px);
+}
+
+.commission-card-header .commission-meta {
+    font-size: var(--font-size-xs);
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-top: var(--space-xs);
+    position: relative;
+    z-index: 1;
+}
+
+.commission-card-header .commission-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.commission-card-header .commission-meta i {
+    font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   COMMISSION CARD BODY
+   ============================================ */
+.commission-card-body {
+    padding: var(--space-lg);
+}
+
+.commission-levels {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+/* ============================================
+   COMMISSION LEVEL ITEM
+   ============================================ */
+.commission-level {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md);
+    background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+    border-radius: var(--radius-lg);
+    border-left: 4px solid var(--primary-500);
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.commission-level::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, transparent 100%);
+    transition: width var(--transition-base);
+}
+
+.commission-level:hover {
+    background: white;
+    box-shadow: var(--shadow-md);
+    transform: translateX(4px);
+}
+
+.commission-level:hover::before {
+    width: 100%;
+}
+
+.commission-level:nth-child(1) {
+    border-left-color: #4f46e5; /* Indigo */
+}
+
+.commission-level:nth-child(2) {
+    border-left-color: #7c3aed; /* Violet */
+}
+
+.commission-level:nth-child(3) {
+    border-left-color: #db2777; /* Pink */
+}
+
+.commission-level:nth-child(4) {
+    border-left-color: #ea580c; /* Orange */
+}
+
+.commission-level:nth-child(5) {
+    border-left-color: #16a34a; /* Green */
+}
+
+.commission-level:nth-child(n+6) {
+    border-left-color: var(--gray-400);
+}
+
+.level-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.level-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+    color: white;
+    font-weight: 700;
+    font-size: var(--font-size-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+}
+
+.commission-level:hover .level-number {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-lg);
+}
+
+.level-label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.level-percentage {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--primary-600);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.level-percentage .percent-sign {
+    font-size: var(--font-size-lg);
+    color: var(--gray-500);
+}
+
+/* ============================================
+   COMMISSION CARD FOOTER
+   ============================================ */
+.commission-card-footer {
+    padding: var(--space-md) var(--space-lg);
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-sm);
+}
+
+.commission-card-footer .btn {
+    flex: 1;
+    padding: 0.625rem 1rem;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-base);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+}
+
+.commission-card-footer .btn-primary {
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+    border: none;
+}
+
+.commission-card-footer .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.commission-card-footer .btn-danger {
+    background: linear-gradient(135deg, var(--danger-500) 0%, var(--danger-600) 100%);
+    border: none;
+}
+
+.commission-card-footer .btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* ============================================
+   COMMISSION FORM STYLES
+   ============================================ */
+.commission-form {
+    background: white;
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-2xl);
+    border: 1px solid var(--gray-100);
+}
+
+.commission-form .form-header {
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--secondary-500) 100%);
+    color: white;
+    padding: var(--space-xl) calc(var(--space-xl) + 0.5rem);
+    position: relative;
+    overflow: hidden;
+}
+
+.commission-form .form-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.commission-form .form-header h4 {
+    margin-bottom: 0;
+    font-weight: 700;
+    font-size: var(--font-size-2xl);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    position: relative;
+    z-index: 1;
+}
+
+.commission-form .form-header h4 i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-xl);
+    backdrop-filter: blur(10px);
+}
+
+.commission-form > form {
+    padding: var(--space-xl);
+}
+
+.commission-form .form-group {
+    margin-bottom: var(--space-lg);
+}
+
+.commission-form label {
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--space-sm);
+    font-size: var(--font-size-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.commission-form label .required {
+    color: var(--danger-500);
+    font-weight: 700;
+}
+
+.commission-form .form-control {
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 0.75rem 1rem;
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-base);
+    background: var(--gray-50);
+}
+
+.commission-form .form-control:hover {
+    border-color: var(--primary-300);
+    background: white;
+}
+
+.commission-form .form-control:focus {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: white;
+}
+
+.commission-form .form-text {
+    color: var(--gray-600);
+    font-size: var(--font-size-xs);
+    margin-top: var(--space-xs);
+    font-style: italic;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-xs);
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.commission-empty-state {
+    background: white;
+    border-radius: var(--radius-2xl);
+    padding: var(--space-2xl);
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    border: 2px dashed var(--gray-300);
+}
+
+.commission-empty-state i {
+    font-size: 4rem;
+    color: var(--gray-400);
+    margin-bottom: var(--space-lg);
+    display: block;
+}
+
+.commission-empty-state h4 {
+    color: var(--gray-700);
+    font-weight: 700;
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-sm);
+}
+
+.commission-empty-state p {
+    color: var(--gray-600);
+    margin-bottom: var(--space-lg);
+    font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   PLACEHOLDER CONTENT
+   ============================================ */
+.placeholder-content {
+    background: white;
+    border-radius: var(--radius-2xl);
+    padding: var(--space-2xl);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--gray-100);
+}
+
+.placeholder-content .alert {
+    border-radius: var(--radius-xl);
+    border: none;
+    padding: var(--space-lg);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    box-shadow: var(--shadow-md);
+}
+
+.placeholder-content .alert-info {
+    background: linear-gradient(135deg, var(--info-50) 0%, #dbeafe 100%);
+    color: var(--info-900);
+}
+
+.placeholder-content .alert i {
+    font-size: var(--font-size-xl);
+    flex-shrink: 0;
+}
+
+.placeholder-content .alert p {
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+
+.placeholder-content .alert a {
+    color: var(--primary-600);
+    font-weight: 600;
+    text-decoration: underline;
+    transition: all var(--transition-base);
+}
+
+.placeholder-content .alert a:hover {
+    color: var(--primary-700);
+    text-decoration: none;
+}
+
+/* ============================================
+   FADE IN ANIMATIONS
+   ============================================ */
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.commission-card:nth-child(1) { animation-delay: 0.1s; }
+.commission-card:nth-child(2) { animation-delay: 0.2s; }
+.commission-card:nth-child(3) { animation-delay: 0.3s; }
+.commission-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+    .commission-form {
+        border-radius: var(--radius-xl);
+    }
+
+    .commission-form > form {
+        padding: var(--space-lg);
+    }
+
+    .commission-form .form-header {
+        padding: var(--space-lg);
+    }
+
+    .commission-form .form-header h4 {
+        font-size: var(--font-size-xl);
+    }
+
+    .commission-card-footer {
+        flex-direction: column;
+    }
+
+    .commission-card-footer .btn {
+        width: 100%;
+    }
+
+    .level-percentage {
+        font-size: var(--font-size-xl);
+    }
+
+    .level-number {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: var(--font-size-md);
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    .commission-card {
+        box-shadow: none;
+        border: 1px solid var(--gray-300);
+        page-break-inside: avoid;
+    }
+
+    .commission-card-header {
+        background: white;
+        color: black;
+        border-bottom: 2px solid var(--gray-300);
+    }
+
+    .commission-card-footer {
+        display: none;
+    }
+}

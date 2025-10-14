@@ -70,10 +70,31 @@ Route::middleware(['auth'])->group(function () {
     
     // Admin routes
     Route::middleware(['admin'])->prefix('admin')->group(function () {
+        // MLM Config
         Route::prefix('config')->group(function () {
             Route::get('/', [ConfigController::class, 'index'])->name('admin.config.index');
             Route::post('/', [ConfigController::class, 'update'])->name('admin.config.update');
             Route::post('/reset', [ConfigController::class, 'reset'])->name('admin.config.reset');
+        });
+
+        // Policies Management
+        Route::prefix('policies')->name('admin.policies.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\PolicyController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\PolicyController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\PolicyController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [\App\Http\Controllers\Admin\PolicyController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [\App\Http\Controllers\Admin\PolicyController::class, 'update'])->name('update');
+            Route::delete('/{id}', [\App\Http\Controllers\Admin\PolicyController::class, 'destroy'])->name('destroy');
+        });
+
+        // Commission Policies Management
+        Route::prefix('commissions')->name('admin.commissions.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\CommissionPolicyController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\CommissionPolicyController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\CommissionPolicyController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [\App\Http\Controllers\Admin\CommissionPolicyController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [\App\Http\Controllers\Admin\CommissionPolicyController::class, 'update'])->name('update');
+            Route::delete('/{id}', [\App\Http\Controllers\Admin\CommissionPolicyController::class, 'destroy'])->name('destroy');
         });
     });
     

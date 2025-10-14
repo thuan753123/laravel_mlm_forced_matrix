@@ -19,103 +19,131 @@ class ConfigController extends Controller
     /**
      * Get MLM configuration.
      */
-    public function index(): JsonResponse
+    public function index(Request $request)
     {
         try {
             $config = config('mlm');
             $settings = Setting::getMlmSettings();
-            
+
             // Merge config with database settings
             $mergedConfig = array_merge($config, $settings);
-            
-            return response()->json([
-                'config' => $mergedConfig,
+
+            // Check if it's an AJAX request or API request
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'config' => $mergedConfig,
+                ]);
+            }
+
+            // Return view for web interface
+            return view('admin.config', [
+                'config' => $mergedConfig
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to get MLM config', [
                 'error' => $e->getMessage(),
             ]);
-            
-            return response()->json([
-                'message' => 'Không thể lấy cấu hình MLM.',
-            ], 500);
+
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Không thể lấy cấu hình MLM.',
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Không thể lấy cấu hình MLM.');
         }
     }
     
     /**
      * Update MLM configuration.
      */
-    public function update(UpdateConfigRequest $request): JsonResponse
+    public function update(UpdateConfigRequest $request)
     {
         try {
             $data = $request->validated();
-            
+
             // Convert array keys to database format
             $settings = [];
             foreach ($data as $key => $value) {
                 $settings["mlm_{$key}"] = $value;
             }
-            
+
             // Update settings in database
             Setting::updateMlmSettings($settings);
-            
+
             Log::info('MLM config updated', [
                 'updated_by' => auth()->id(),
                 'settings' => $settings,
             ]);
-            
-            return response()->json([
-                'message' => 'Cấu hình MLM đã được cập nhật thành công.',
-                'config' => $data,
-            ]);
-            
+
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Cấu hình MLM đã được cập nhật thành công.',
+                    'config' => $data,
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Cấu hình MLM đã được cập nhật thành công.');
+
         } catch (\Exception $e) {
             Log::error('Failed to update MLM config', [
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
             ]);
-            
-            return response()->json([
-                'message' => 'Cập nhật cấu hình MLM thất bại.',
-            ], 500);
+
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Cập nhật cấu hình MLM thất bại.',
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Cập nhật cấu hình MLM thất bại.');
         }
     }
     
     /**
      * Reset MLM configuration to default.
      */
-    public function reset(): JsonResponse
+    public function reset(Request $request)
     {
         try {
             $defaultConfig = config('mlm');
-            
+
             // Convert to database format
             $settings = [];
             foreach ($defaultConfig as $key => $value) {
                 $settings["mlm_{$key}"] = $value;
             }
-            
+
             // Update settings
             Setting::updateMlmSettings($settings);
-            
+
             Log::info('MLM config reset to default', [
                 'reset_by' => auth()->id(),
             ]);
-            
-            return response()->json([
-                'message' => 'Cấu hình MLM đã được đặt lại về mặc định.',
-                'config' => $defaultConfig,
-            ]);
-            
+
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Cấu hình MLM đã được đặt lại về mặc định.',
+                    'config' => $defaultConfig,
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Cấu hình MLM đã được đặt lại về mặc định.');
+
         } catch (\Exception $e) {
             Log::error('Failed to reset MLM config', [
                 'error' => $e->getMessage(),
             ]);
-            
-            return response()->json([
-                'message' => 'Đặt lại cấu hình MLM thất bại.',
-            ], 500);
+
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Đặt lại cấu hình MLM thất bại.',
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Đặt lại cấu hình MLM thất bại.');
         }
     }
     

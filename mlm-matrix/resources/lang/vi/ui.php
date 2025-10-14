@@ -65,6 +65,8 @@ return [
         'login' => 'Đăng nhập',
         'register' => 'Đăng ký',
         'logout' => 'Đăng xuất',
+        'welcome' => 'Chào mừng',
+        'login_required' => 'Vui lòng đăng nhập để tiếp tục',
         'email' => 'Email',
         'password' => 'Mật khẩu',
         'confirm_password' => 'Xác nhận mật khẩu',

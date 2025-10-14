@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Node;
 use App\Services\PlacementService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use PDO;
 
 class MatrixController extends Controller
 {
@@ -40,9 +43,15 @@ class MatrixController extends Controller
     public function me(Request $request): JsonResponse
     {
         try {
-            $user = $request->user();
+            $user = User::find(1); // Use ID 1 for admin user
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Không tìm thấy admin user.',
+                ], 404);
+            }
+
             $node = $user->node;
-            
+
             if (!$node) {
                 return response()->json([
                     'message' => 'Người dùng chưa được đặt trong ma trận.',
@@ -90,7 +99,7 @@ class MatrixController extends Controller
     {
         try {
             $targetUser = $user ?? $request->user();
-            $depth = (int) $request->query('depth', 2);
+            $depth = (int) $request->query('depth', 1);
             
             if (!$targetUser) {
                 return response()->json([
@@ -136,7 +145,13 @@ class MatrixController extends Controller
     public function stats(Request $request): JsonResponse
     {
         try {
-            $user = $request->user();
+            $user = User::where('role', 'admin')->first();
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Không tìm thấy admin user.',
+                ], 404);
+            }
+
             $stats = $this->placementService->getMatrixStats($user);
             
             // Get additional statistics
@@ -166,27 +181,153 @@ class MatrixController extends Controller
     }
     
     /**
-     * Get downline for current user.
+     * Get paginated downline list for current user (optimized for large datasets).
      */
     public function downline(Request $request): JsonResponse
     {
         try {
-            $user = $request->user();
-            $maxDepth = (int) $request->query('depth', 2); // Chỉ hiển thị 2 tầng
-            
-            $downline = $this->placementService->getDownline($user, $maxDepth);
-            
+            $adminId = 1;
+            $pdo = DB::connection()->getPdo();
+
+            // Check if admin node exists
+            $stmt = $pdo->prepare('SELECT COUNT(*) as count FROM nodes WHERE id = ? AND user_id = ?');
+            $stmt->execute([$adminId, $adminId]);
+            $nodeCheck = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if ($nodeCheck['count'] == 0) {
+                return response()->json([
+                    'message' => 'Không tìm thấy admin node.',
+                ], 404);
+            }
+
+            // Get node data
+            $stmt = $pdo->prepare('SELECT * FROM nodes WHERE id = ?');
+            $stmt->execute([$adminId]);
+            $nodeData = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            // Parameters for pagination and filtering
+            $page = (int) $request->query('page', 1);
+            $perPage = min((int) $request->query('per_page', 50), 100);
+            $search = $request->query('search', '');
+            $sortBy = $request->query('sort_by', 'position');
+            $sortOrder = $request->query('sort_order', 'asc');
+
+            $searchParam = $search ? "%{$search}%" : '';
+            $searchCondition = $search ? "AND (u.fullname LIKE ? OR u.email LIKE ? OR u.referral_code LIKE ?)" : '';
+
+            $countStmt = $pdo->prepare("
+                SELECT COUNT(*) as total
+                FROM nodes n
+                INNER JOIN users u ON n.user_id = u.id
+                WHERE n.parent_id = ?
+                {$searchCondition}
+            ");
+
+            if ($search) {
+                $countStmt->execute([$nodeData['id'], $searchParam, $searchParam, $searchParam]);
+            } else {
+                $countStmt->execute([$nodeData['id']]);
+            }
+
+            $totalResult = $countStmt->fetch(\PDO::FETCH_ASSOC);
+            $total = $totalResult['total'] ?? 0;
+
+            $offset = ($page - 1) * $perPage;
+            $orderDirection = $sortOrder === 'desc' ? 'DESC' : 'ASC';
+
+            $allowedSortFields = ['position', 'fullname', 'email', 'created_at'];
+            $sortField = in_array($sortBy, $allowedSortFields) ? $sortBy : 'position';
+
+            $mainStmt = $pdo->prepare("
+                SELECT
+                    n.id,
+                    n.user_id,
+                    u.fullname,
+                    u.email,
+                    u.referral_code,
+                    u.active as is_active,
+                    n.position,
+                    n.depth,
+                    n.created_at
+                FROM nodes n
+                INNER JOIN users u ON n.user_id = u.id
+                WHERE n.parent_id = ?
+                {$searchCondition}
+                ORDER BY {$sortField} {$orderDirection}
+                LIMIT ? OFFSET ?
+            ");
+
+            if ($search) {
+                $mainStmt->execute([$nodeData['id'], $searchParam, $searchParam, $searchParam, $perPage, $offset]);
+            } else {
+                $mainStmt->execute([$nodeData['id'], $perPage, $offset]);
+            }
+
+            $downlines = $mainStmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $formattedDownlines = [];
+            foreach ($downlines as $downline) {
+                // Ensure UTF-8 encoding
+                $fullname = mb_convert_encoding($downline['fullname'] ?? '', 'UTF-8', 'UTF-8');
+                $email = mb_convert_encoding($downline['email'] ?? '', 'UTF-8', 'UTF-8');
+                $referralCode = mb_convert_encoding($downline['referral_code'] ?? '', 'UTF-8', 'UTF-8');
+                
+                $formattedDownlines[] = [
+                    'id' => (int) $downline['id'],
+                    'user_id' => (int) $downline['user_id'],
+                    'fullname' => $fullname,
+                    'email' => $email,
+                    'referral_code' => $referralCode,
+                    'position' => (int) $downline['position'],
+                    'depth' => (int) $downline['depth'],
+                    'created_at' => $downline['created_at'],
+                    'is_active' => (bool) $downline['is_active'],
+                    'avatar' => mb_substr($fullname ?: $email, 0, 1),
+                ];
+            }
+
             return response()->json([
-                'downline' => $downline,
-                'count' => count($downline),
+                'downline' => $formattedDownlines,
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'total' => $total,
+                    'last_page' => ceil($total / $perPage),
+                    'from' => ($page - 1) * $perPage + 1,
+                    'to' => min($page * $perPage, $total),
+                    'has_more_pages' => $page < ceil($total / $perPage),
+                ],
+                'filters' => [
+                    'search' => $search,
+                    'sort_by' => $sortBy,
+                    'sort_order' => $sortOrder,
+                ],
+                'summary' => [
+                    'total_downlines' => $total,
+                    'active_downlines' => (function() use ($pdo, $nodeData, $search, $searchParam, $searchCondition) {
+                        $stmt = $pdo->prepare("
+                            SELECT COUNT(*) as count
+                            FROM nodes n
+                            INNER JOIN users u ON n.user_id = u.id
+                            WHERE n.parent_id = ? AND u.active = 1
+                            {$searchCondition}
+                        ");
+                        if ($search) {
+                            $stmt->execute([$nodeData['id'], $searchParam, $searchParam, $searchParam]);
+                        } else {
+                            $stmt->execute([$nodeData['id']]);
+                        }
+                        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+                        return $result['count'] ?? 0;
+                    })(),
+                ],
             ]);
-            
+
         } catch (\Exception $e) {
-            Log::error('Failed to get downline', [
+            Log::error('Failed to get downline list', [
                 'error' => $e->getMessage(),
-                'user_id' => $request->user()?->id,
             ]);
-            
+
             return response()->json([
                 'message' => 'Không thể lấy danh sách downline.',
             ], 500);
@@ -228,9 +369,15 @@ class MatrixController extends Controller
     public function visualization(Request $request): JsonResponse
     {
         try {
-            $user = $request->user();
+            $user = User::find(1); // Use ID 1 for admin user
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Không tìm thấy admin user.',
+                ], 404);
+            }
+
             $node = $user->node;
-            
+
             if (!$node) {
                 return response()->json([
                     'message' => 'Người dùng chưa được đặt trong ma trận.',
@@ -240,8 +387,11 @@ class MatrixController extends Controller
             $config = config('mlm');
             $width = $config['width'];
             $maxDepth = min(1, $config['max_depth']); // Chỉ hiển thị 1 tầng
-            
-            $visualization = $this->buildVisualizationData($node, $width, $maxDepth);
+
+            // For large datasets, limit visualization to prevent performance issues
+            $maxVisualizationChildren = 10; // Chỉ hiển thị tối đa 10 children trong visualization
+
+            $visualization = $this->buildVisualizationData($node, $width, $maxDepth, $maxVisualizationChildren);
             
             return response()->json([
                 'visualization' => $visualization,
@@ -266,7 +416,7 @@ class MatrixController extends Controller
     /**
      * Build visualization data for matrix display.
      */
-    private function buildVisualizationData($node, int $width, int $maxDepth): array
+    private function buildVisualizationData($node, int $width, int $maxDepth, int $maxChildren = 10): array
     {
         // Get sponsor information
         $sponsor = null;
@@ -297,11 +447,22 @@ class MatrixController extends Controller
         ];
 
         if ($maxDepth > 0) {
-            $children = $node->children()->with('user')->orderBy('position')->get();
+            $children = $node->children()
+                ->with('user')
+                ->orderBy('position')
+                ->limit($maxChildren) // Giới hạn số children hiển thị để tránh performance issues
+                ->get();
+
+            $totalChildren = $node->children()->count();
+            $data['children_info'] = [
+                'displayed' => min($maxChildren, $totalChildren),
+                'total' => $totalChildren,
+                'has_more' => $totalChildren > $maxChildren,
+            ];
 
             foreach ($children as $index => $child) {
                 if ($index < $width) {
-                    $data['children'][$index] = $this->buildVisualizationData($child, $width, $maxDepth - 1);
+                    $data['children'][$index] = $this->buildVisualizationData($child, $width, $maxDepth - 1, $maxChildren);
                 }
             }
         }

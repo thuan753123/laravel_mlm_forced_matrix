@@ -18,7 +18,7 @@
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-600">Tổng Downline</p>
+                                    <p class="text-sm font-medium text-gray-600">Tổng Thành Viên</p>
                                     <p class="text-2xl font-semibold text-gray-900" id="total-downline">-</p>
                                 </div>
                             </div>
@@ -46,7 +46,7 @@
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-600">Tầng Hiện Tại</p>
+                                    <p class="text-sm font-medium text-gray-600">Cấp Độ</p>
                                     <p class="text-2xl font-semibold text-gray-900" id="current-depth">-</p>
                                 </div>
                             </div>
@@ -70,7 +70,12 @@
                     <!-- Matrix Tree Visualization with D3.js -->
                     <div class="bg-white p-6 rounded-lg shadow mb-8">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold">{{ __('ui.matrix_page.visualization') }}</h3>
+                            <div>
+                                <h3 class="text-lg font-semibold">{{ __('ui.matrix_page.visualization') }}</h3>
+                                <div id="visualization-info" class="text-sm text-gray-600 mt-1">
+                                    <!-- Thông tin về visualization sẽ được cập nhật bởi JavaScript -->
+                                </div>
+                            </div>
 
                             <!-- D3.js Zoom Controls -->
                             <div class="zoom-controls flex items-center space-x-2 bg-gray-50 rounded-lg p-2">
@@ -150,14 +155,7 @@
                     </div>
 
                     <!-- Downline List -->
-                    <div class="bg-white p-6 rounded-lg shadow">
-                        <h3 class="text-lg font-semibold mb-4">Danh Sách Downline</h3>
-                        <div id="downline-list" class="space-y-2">
-                            <div class="flex items-center justify-center py-4">
-                                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
-                            </div>
-                        </div>
-                    </div>
+            
                 @else
                     <div class="text-center py-12">
                         <h2 class="text-3xl font-bold text-gray-900 mb-4">Vui lòng đăng nhập</h2>
@@ -165,6 +163,79 @@
                         <a href="{{ route('login') }}" class="inline-flex items-center px-6 py-3 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                             {{ __('ui.auth.login') }}
                         </a>
+                    </div>
+                @endauth
+
+                @auth
+                    <!-- Downline List Section for Large Datasets -->
+                    <div class="bg-white p-6 rounded-lg shadow mt-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-semibold">Danh sách Downline</h3>
+                            <div class="text-sm text-gray-600">
+                                <span id="downline-summary">Đang tải...</span>
+                            </div>
+                        </div>
+
+                        <!-- Search and Filter Controls -->
+                        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                            <div class="flex-1">
+                                <input type="text" id="downline-search" placeholder="Tìm kiếm theo tên, email hoặc mã giới thiệu..."
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            </div>
+                            <div class="flex gap-2">
+                                <select id="sort-by" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                    <option value="position">Sắp xếp theo vị trí</option>
+                                    <option value="users.fullname">Sắp xếp theo tên</option>
+                                    <option value="users.email">Sắp xếp theo email</option>
+                                    <option value="users.created_at">Sắp xếp theo ngày tham gia</option>
+                                </select>
+                                <select id="sort-order" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                    <option value="asc">Tăng dần</option>
+                                    <option value="desc">Giảm dần</option>
+                                </select>
+                                <select id="per-page" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                    <option value="25">25 mỗi trang</option>
+                                    <option value="50" selected>50 mỗi trang</option>
+                                    <option value="100">100 mỗi trang</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Downline List Table -->
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vị trí</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avatar</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã GT</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tham gia</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="downline-tbody" class="bg-white divide-y divide-gray-200">
+                                    <!-- Downline data sẽ được tải bởi JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination Controls -->
+                        <div id="pagination-controls" class="flex items-center justify-between mt-6">
+                            <!-- Pagination sẽ được cập nhật bởi JavaScript -->
+                        </div>
+
+                        <!-- Loading indicator -->
+                        <div id="downline-loading" class="text-center py-8 hidden">
+                            <div class="inline-flex items-center">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span class="text-gray-600">Đang tải danh sách downline...</span>
+                            </div>
+                        </div>
                     </div>
                 @endauth
             </div>
@@ -184,6 +255,7 @@ let tooltip, nodeWidth = 140, nodeHeight = 80, linkDistance = 140;
 document.addEventListener('DOMContentLoaded', function() {
     initializeD3Tree();
     loadMatrixData();
+    // Note: loadDownlineList() is called in the event listeners below
 });
 
 async function loadMatrixData() {
@@ -194,7 +266,7 @@ async function loadMatrixData() {
             const statsData = await statsResponse.json();
             document.getElementById('total-downline').textContent = statsData.total_downline || 0;
             document.getElementById('direct-downline').textContent = statsData.direct_downline || 0;
-            document.getElementById('current-depth').textContent = statsData.depth || 0;
+            document.getElementById('current-depth').textContent = statsData.depth === 0 ? 'Root' : 'Direct Downline';
             document.getElementById('position').textContent = statsData.position || 0;
         }
 
@@ -332,9 +404,9 @@ function renderD3Tree(data) {
         .attr('rx', 8) // Rounded corners
         .style('fill', d => {
             if (d.data.depth === 0) return '#6366f1'; // Root - indigo
-            if (d.data.depth === 1) return '#3b82f6'; // Level 1 - blue
-            if (d.data.depth === 2) return '#10b981'; // Level 2 - green
-            if (d.data.depth === 3) return '#f59e0b'; // Level 3 - yellow
+            if (d.data.depth === 1) return '#3b82f6'; // Level 1 (Direct Downline) - blue
+            // Single level matrix - all other levels use the same color as level 1
+            return '#3b82f6';
             return '#ef4444'; // Level 4+ - red
         })
         .style('stroke', '#fff')
@@ -370,7 +442,10 @@ function renderD3Tree(data) {
         .attr('text-anchor', 'middle')
         .style('fill', 'rgba(255,255,255,0.8)')
         .style('font-size', '9px')
-        .text(d => `L${d.data.depth} P${d.data.position}`);
+        .text(d => {
+            if (d.data.depth === 0) return 'ROOT';
+            return `P${d.data.position}`;
+        });
 
     // Add referral code
     nodes.append('text')
@@ -425,7 +500,7 @@ function showTooltip(event, d) {
             <div style="font-weight: bold; margin-bottom: 4px; color: #fbbf24;">${data.name}</div>
             <div><strong>Email:</strong> ${data.email}</div>
             <div><strong>Referral Code:</strong> ${data.referral_code}</div>
-            <div><strong>Level:</strong> ${data.depth}</div>
+            <div><strong>Level:</strong> ${data.depth === 0 ? 'Root' : 'Direct Downline'}</div>
             <div><strong>Position:</strong> ${data.position}</div>
             ${sponsorInfo}
         `)
@@ -444,6 +519,27 @@ function updateZoomLevel() {
     if (zoomLevelElement) {
         zoomLevelElement.textContent = Math.round(currentTransform.k * 100) + '%';
     }
+}
+
+// Update visualization info display
+function updateVisualizationInfo(data) {
+    const infoElement = document.getElementById('visualization-info');
+    if (!infoElement || !data.visualization) return;
+
+    const visualization = data.visualization;
+    const childrenInfo = visualization.children_info || {};
+
+    let infoText = '';
+
+    if (childrenInfo.has_more) {
+        infoText = `Hiển thị ${childrenInfo.displayed}/${childrenInfo.total} downlines. Tổng cộng ${childrenInfo.total} downlines trực tiếp - xem tất cả trong danh sách bên dưới.`;
+    } else if (childrenInfo.total > 0) {
+        infoText = `${childrenInfo.total} downlines trực tiếp`;
+    } else {
+        infoText = 'Chưa có downlines';
+    }
+
+    infoElement.innerHTML = infoText;
 }
 
 // Center tree in the middle of the container
@@ -548,6 +644,9 @@ async function loadMatrixTree() {
                 console.log('Tree data structure:', treeData);
                 renderD3Tree(data.visualization);
 
+                // Update visualization info
+                updateVisualizationInfo(data);
+
                 // Setup controls after rendering
                 setupD3Controls();
 
@@ -637,39 +736,250 @@ async function loadUplineChain() {
     }
 }
 
-async function loadDownlineList() {
+// Global variables for downline management
+let currentDownlinePage = 1;
+let currentDownlineFilters = {
+    search: '',
+    sort_by: 'position',
+    sort_order: 'asc',
+    per_page: 50
+};
+
+// Load downline list with pagination and filtering
+async function loadDownlineList(page = 1, filters = {}) {
     try {
-        const response = await fetch('/matrix/downline?depth=2');
+        // Show loading indicator
+        document.getElementById('downline-loading').classList.remove('hidden');
+        document.getElementById('downline-tbody').innerHTML = '';
+
+        // Merge filters
+        const queryParams = new URLSearchParams({
+            page: page,
+            ...currentDownlineFilters,
+            ...filters
+        });
+
+        const response = await fetch(`/api/matrix/downline?${queryParams.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
         if (response.ok) {
             const data = await response.json();
-            const downlineContainer = document.getElementById('downline-list');
 
-            if (data.downline && data.downline.length > 0) {
-                downlineContainer.innerHTML = data.downline.map((member, index) => `
-                    <div class="flex items-center justify-between py-2 px-4 bg-gray-50 rounded-lg">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                <span class="text-sm font-semibold text-green-600">${index + 1}</span>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">${member.fullname || member.email}</p>
-                                <p class="text-sm text-gray-500">${member.referral_code}</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm text-gray-600">Thành viên</p>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                downlineContainer.innerHTML = '<p class="text-gray-500 text-center py-4">Chưa có downline</p>';
-            }
+            // Update summary
+            updateDownlineSummary(data);
+
+            // Render table rows
+            renderDownlineTable(data.downline);
+
+            // Update pagination
+            renderPagination(data.pagination);
+
+            // Update current state
+            currentDownlinePage = page;
+            currentDownlineFilters = { ...currentDownlineFilters, ...filters };
+        } else {
+            throw new Error(`Failed to load downline data: ${response.status} ${response.statusText}`);
         }
     } catch (error) {
         console.error('Error loading downline list:', error);
-        document.getElementById('downline-list').innerHTML = '<p class="text-red-500 text-center py-4">Lỗi tải downline</p>';
+        document.getElementById('downline-tbody').innerHTML = `
+            <tr>
+                <td colspan="7" class="px-6 py-4 text-center text-red-500">
+                    Lỗi tải danh sách downline. Vui lòng thử lại.
+                </td>
+            </tr>
+        `;
+    } finally {
+        document.getElementById('downline-loading').classList.add('hidden');
     }
 }
+
+// Update downline summary
+function updateDownlineSummary(data) {
+    const summary = document.getElementById('downline-summary');
+    const total = data.pagination?.total || 0;
+    const active = data.summary?.active_downlines || 0;
+
+    summary.innerHTML = `
+        Tổng: <strong>${total}</strong> downline
+        (${active} đang hoạt động)
+    `;
+}
+
+// Render downline table rows
+function renderDownlineTable(downlines) {
+    const tbody = document.getElementById('downline-tbody');
+
+    if (!downlines || downlines.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                    Không có downline nào phù hợp với tiêu chí tìm kiếm.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = downlines.map(downline => `
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${downline.position}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-sm font-medium text-indigo-600">
+                    ${downline.avatar}
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${downline.fullname}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${downline.email}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${downline.referral_code}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    downline.is_active
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                }">
+                    ${downline.is_active ? 'Hoạt động' : 'Không hoạt động'}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${new Date(downline.created_at).toLocaleDateString('vi-VN')}
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Render pagination controls
+function renderPagination(pagination) {
+    const container = document.getElementById('pagination-controls');
+
+    if (!pagination || pagination.total <= pagination.per_page) {
+        container.innerHTML = '';
+        return;
+    }
+
+    const { current_page, last_page, total, from, to } = pagination;
+
+    container.innerHTML = `
+        <div class="flex items-center space-x-2">
+            <span class="text-sm text-gray-700">
+                Hiển thị ${from}-${to} của ${total} kết quả
+            </span>
+        </div>
+        <div class="flex items-center space-x-1">
+            <button
+                onclick="loadDownlineList(${current_page - 1})"
+                ${current_page <= 1 ? 'disabled' : ''}
+                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 ${current_page <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+            >
+                Trước
+            </button>
+
+            ${generatePageNumbers(current_page, last_page)}
+
+            <button
+                onclick="loadDownlineList(${current_page + 1})"
+                ${current_page >= last_page ? 'disabled' : ''}
+                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 ${current_page >= last_page ? 'opacity-50 cursor-not-allowed' : ''}"
+            >
+                Tiếp
+            </button>
+        </div>
+    `;
+}
+
+// Generate page number buttons
+function generatePageNumbers(current, last) {
+    let buttons = [];
+
+    // Always show first page
+    if (current > 1) {
+        buttons.push(`<button onclick="loadDownlineList(1)" class="px-3 py-2 text-sm font-medium text-indigo-600 bg-white border border-gray-300 rounded-md hover:bg-indigo-50">1</button>`);
+    }
+
+    // Show ellipsis if needed
+    if (current > 3) {
+        buttons.push('<span class="px-3 py-2 text-sm font-medium text-gray-700">...</span>');
+    }
+
+    // Show current page and adjacent pages
+    for (let i = Math.max(2, current - 1); i <= Math.min(last - 1, current + 1); i++) {
+        buttons.push(`
+            <button
+                onclick="loadDownlineList(${i})"
+                class="px-3 py-2 text-sm font-medium ${i === current ? 'text-white bg-indigo-600 border border-indigo-600' : 'text-indigo-600 bg-white border border-gray-300 hover:bg-indigo-50'} rounded-md"
+            >
+                ${i}
+            </button>
+        `);
+    }
+
+    // Show ellipsis if needed
+    if (current < last - 2) {
+        buttons.push('<span class="px-3 py-2 text-sm font-medium text-gray-700">...</span>');
+    }
+
+    // Always show last page
+    if (current < last) {
+        buttons.push(`<button onclick="loadDownlineList(${last})" class="px-3 py-2 text-sm font-medium text-indigo-600 bg-white border border-gray-300 rounded-md hover:bg-indigo-50">${last}</button>`);
+    }
+
+    return buttons.join('');
+}
+
+// Event listeners for filters
+document.addEventListener('DOMContentLoaded', function() {
+    // Search input
+    const searchInput = document.getElementById('downline-search');
+    if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                loadDownlineList(1, { search: this.value });
+            }, 500); // Debounce 500ms
+        });
+    }
+
+    // Sort controls
+    const sortBy = document.getElementById('sort-by');
+    const sortOrder = document.getElementById('sort-order');
+    const perPage = document.getElementById('per-page');
+
+    if (sortBy) {
+        sortBy.addEventListener('change', function() {
+            loadDownlineList(1, { sort_by: this.value });
+        });
+    }
+
+    if (sortOrder) {
+        sortOrder.addEventListener('change', function() {
+            loadDownlineList(1, { sort_order: this.value });
+        });
+    }
+
+    if (perPage) {
+        perPage.addEventListener('change', function() {
+            loadDownlineList(1, { per_page: parseInt(this.value) });
+        });
+    }
+
+    // Initial load
+    loadDownlineList();
+});
 </script>
 
 <style>

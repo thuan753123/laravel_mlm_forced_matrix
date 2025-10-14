@@ -10,40 +10,38 @@ use Illuminate\Support\Facades\Log;
 class PlacementService
 {
     /**
-     * Place a user in the forced matrix structure.
+     * Place a user in the single-level matrix structure.
+     * Each user has only direct downlines (1 level deep).
      */
     public function place(User $user, ?User $sponsor = null): Node
     {
         return DB::transaction(function () use ($user, $sponsor) {
             $config = config('mlm');
             $width = $config['width'];
-            $maxDepth = $config['max_depth'];
 
             // If no sponsor provided, find the root or create one
             if (!$sponsor) {
                 $sponsor = $this->findRootSponsor();
             }
 
-            // Ensure user is placed under their correct sponsor in the matrix
-            $position = $this->findBestPositionUnderSponsor($sponsor, $width, $maxDepth);
+            // For single level matrix, just find the next available position under sponsor
+            $position = $this->findAvailablePositionUnderSponsor($sponsor, $width);
 
-            // Create the node
+            // Create the node (simplified for single level)
             $node = Node::create([
                 'user_id' => $user->id,
                 'position' => $position['position'],
-                'depth' => $position['depth'],
-                'parent_id' => $position['parent_id'],
+                'depth' => 1, // Always depth 1 for direct downline
+                'parent_id' => $sponsor->node->id,
+                '_lft' => 0, // Not using nested set for single level
+                '_rgt' => 0,
             ]);
 
-            // Update the nested set structure
-            $this->updateNestedSetStructure($node);
-
-            Log::info('User placed in matrix', [
+            Log::info('User placed in single-level matrix', [
                 'user_id' => $user->id,
                 'node_id' => $node->id,
                 'parent_id' => $node->parent_id,
                 'position' => $node->position,
-                'depth' => $node->depth,
                 'sponsor_id' => $sponsor->id,
             ]);
 
@@ -100,9 +98,10 @@ class PlacementService
     }
     
     /**
-     * Find the best position for a new user under their sponsor using BFS.
+     * Find available position for a new user under their sponsor (single level only).
+     * In single-level matrix, users are placed directly under their sponsor without width limits.
      */
-    private function findBestPositionUnderSponsor(User $sponsor, int $width, int $maxDepth): array
+    private function findAvailablePositionUnderSponsor(User $sponsor, int $width): array
     {
         $sponsorNode = $sponsor->node;
 
@@ -110,57 +109,14 @@ class PlacementService
             throw new \Exception('Sponsor does not have a node in the matrix.');
         }
 
-        // First, try to place directly under the sponsor
-        $childrenCount = $sponsorNode->children()->count();
+        // Simply find the next available position under the sponsor
+        // No width limits in single-level matrix - unlimited direct downlines
+        $nextPosition = $sponsorNode->children()->count();
 
-        if ($childrenCount < $width && $sponsorNode->depth < $maxDepth) {
-            return [
-                'parent_id' => $sponsorNode->id,
-                'position' => $childrenCount,
-                'depth' => $sponsorNode->depth + 1,
-            ];
-        }
-
-        // If sponsor is full, use BFS to find the first available position in sponsor's downline
-        $queue = [$sponsorNode];
-        $visited = [];
-
-        while (!empty($queue)) {
-            $currentNode = array_shift($queue);
-
-            if (in_array($currentNode->id, $visited)) {
-                continue;
-            }
-
-            $visited[] = $currentNode->id;
-
-            // Check if current node has space for children and is within sponsor's downline
-            $childrenCount = $currentNode->children()->count();
-
-            if ($childrenCount < $width && $currentNode->depth < $maxDepth) {
-                return [
-                    'parent_id' => $currentNode->id,
-                    'position' => $childrenCount,
-                    'depth' => $currentNode->depth + 1,
-                ];
-            }
-
-            // Add children to queue for BFS (only within sponsor's downline)
-            $children = $currentNode->children()->orderBy('position')->get();
-            foreach ($children as $child) {
-                if (!in_array($child->id, $visited)) {
-                    $queue[] = $child;
-                }
-            }
-        }
-
-        // If no position found in sponsor's downline, place under the sponsor (even if it exceeds width)
-        // This handles edge cases where the matrix becomes unbalanced
-        $childrenCount = $sponsorNode->children()->count();
         return [
             'parent_id' => $sponsorNode->id,
-            'position' => $childrenCount,
-            'depth' => $sponsorNode->depth + 1,
+            'position' => $nextPosition,
+            'depth' => 1, // Always depth 1 for direct downline
         ];
     }
     
@@ -169,31 +125,13 @@ class PlacementService
      */
     private function updateNestedSetStructure(Node $node): void
     {
+        // For single level matrix, we don't need complex nested set operations
+        // Just set basic nested set values for model compatibility
         if ($node->parent_id) {
             $parent = Node::find($node->parent_id);
-            $rightSibling = $parent->children()
-                ->where('position', '>', $node->position)
-                ->orderBy('position')
-                ->first();
-            
-            if ($rightSibling) {
-                // Insert before right sibling
-                $node->_lft = $rightSibling->_lft;
-                $node->_rgt = $rightSibling->_lft + 1;
-                
-                // Update all nodes to the right
-                Node::where('_lft', '>=', $rightSibling->_lft)
-                    ->where('id', '!=', $node->id)
-                    ->increment('_lft', 2);
-                Node::where('_rgt', '>=', $rightSibling->_lft)
-                    ->where('id', '!=', $node->id)
-                    ->increment('_rgt', 2);
-            } else {
-                // Insert as last child
+            if ($parent) {
                 $node->_lft = $parent->_rgt;
                 $node->_rgt = $parent->_rgt + 1;
-                
-                // Update parent's right boundary
                 $parent->increment('_rgt', 2);
             }
         } else {
@@ -201,7 +139,7 @@ class PlacementService
             $node->_lft = 1;
             $node->_rgt = 2;
         }
-        
+
         $node->save();
     }
     

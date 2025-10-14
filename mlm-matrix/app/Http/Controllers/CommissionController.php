@@ -18,6 +18,22 @@ class CommissionController extends Controller
     ) {}
 
     /**
+     * Display commission page.
+     */
+    public function index(Request $request)
+    {
+        $user = $request->user();
+        
+        // Get current cycle
+        $cycle = $this->cycleService->currentCycle();
+        
+        // Get commission summary
+        $summary = $this->commissionService->getCommissionSummary($user, $cycle);
+        
+        return view('commissions.index', compact('user', 'cycle', 'summary'));
+    }
+
+    /**
      * Get commissions for current user.
      */
     public function me(Request $request): JsonResponse
