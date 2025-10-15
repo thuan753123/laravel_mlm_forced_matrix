@@ -24,6 +24,11 @@ class PlacementService
                 $sponsor = $this->findRootSponsor();
             }
 
+            // If this is the root user (admin), create root node
+            if ($user->role === 'admin' && !$user->node) {
+                return $this->createRootNode($user);
+            }
+
             // For single level matrix, just find the next available position under sponsor
             $position = $this->findAvailablePositionUnderSponsor($sponsor, $width);
 
@@ -48,6 +53,8 @@ class PlacementService
             return $node;
         });
     }
+
+
     
     /**
      * Find the root sponsor (admin user).

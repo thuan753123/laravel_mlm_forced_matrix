@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Node;
 use App\Services\PlacementService;
+use App\Services\ExternalApiService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -14,108 +15,134 @@ use PDO;
 class MatrixController extends Controller
 {
     public function __construct(
-        private PlacementService $placementService
+        private PlacementService $placementService,
+        private ExternalApiService $externalApiService
     ) {}
 
     /**
-     * Display matrix page.
+     * Display matrix page with API data.
      */
     public function index(Request $request)
     {
         $user = $request->user();
 
-        if (!$user->node) {
-            // User chưa được đặt trong matrix, hiển thị trang chờ
+        if (!$user || !$user->referral_code) {
             return view('matrix.waiting', [
                 'user' => $user,
-                'message' => 'Bạn chưa được đặt trong ma trận. Vui lòng liên hệ admin để được hỗ trợ.'
+                'message' => 'Bạn chưa có mã giới thiệu. Vui lòng liên hệ admin để được hỗ trợ.'
             ]);
         }
 
-        $stats = $this->placementService->getMatrixStats($user);
+        try {
+            // Fetch users from API that match this user's referral code
+            $apiUsers = $this->externalApiService->fetchUsersByReferralCode($user->referral_code);
+            
+            $stats = [
+                'total_downline' => count($apiUsers),
+                'active_downline' => count(array_filter($apiUsers, function($apiUser) {
+                    return $apiUser['active'] ?? true;
+                })),
+                'depth' => 1,
+                'position' => 0,
+            ];
 
-        return view('matrix.index', compact('user', 'stats'));
+            return view('matrix.index', compact('user', 'stats', 'apiUsers'));
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to load matrix data from API', [
+                'error' => $e->getMessage(),
+                'user_id' => $user->id,
+                'referral_code' => $user->referral_code,
+            ]);
+
+            return view('matrix.waiting', [
+                'user' => $user,
+                'message' => 'Không thể tải dữ liệu ma trận từ API. Vui lòng thử lại sau.'
+            ]);
+        }
     }
 
     /**
-     * Get current user's matrix information.
+     * Get current user's matrix information from API.
      */
     public function me(Request $request): JsonResponse
     {
         try {
-            $user = User::find(1); // Use ID 1 for admin user
-            if (!$user) {
-                return response()->json([
-                    'message' => 'Không tìm thấy admin user.',
-                ], 404);
-            }
-
-            $node = $user->node;
-
-            if (!$node) {
-                return response()->json([
-                    'message' => 'Người dùng chưa được đặt trong ma trận.',
-                ], 404);
-            }
+            $user = $request->user();
             
-            $stats = $this->placementService->getMatrixStats($user);
-            $uplineChain = $this->placementService->getUplineChain($user);
+            if (!$user || !$user->referral_code) {
+                return response()->json([
+                    'message' => 'Người dùng không có mã giới thiệu.',
+                ], 404);
+            }
+
+            // Fetch users from API that match this user's referral code
+            $apiUsers = $this->externalApiService->fetchUsersByReferralCode($user->referral_code);
+            
+            $stats = [
+                'total_downline' => count($apiUsers),
+                'active_downline' => count(array_filter($apiUsers, function($apiUser) {
+                    return $apiUser['active'] ?? true;
+                })),
+                'depth' => 1,
+                'position' => 0,
+            ];
             
             return response()->json([
-                'node' => [
-                    'id' => $node->id,
-                    'depth' => $node->depth,
-                    'position' => $node->position,
-                    'parent_id' => $node->parent_id,
+                'user' => [
+                    'id' => $user->id,
+                    'fullname' => $user->fullname,
+                    'email' => $user->email,
+                    'referral_code' => $user->referral_code,
                 ],
                 'stats' => $stats,
-                'upline_count' => count($uplineChain),
-                'upline' => array_map(function ($uplineUser) {
+                'downline_count' => count($apiUsers),
+                'downline' => array_map(function ($apiUser) {
                     return [
-                        'id' => $uplineUser->id,
-                        'fullname' => $uplineUser->fullname,
-                        'email' => $uplineUser->email,
-                        'referral_code' => $uplineUser->referral_code,
+                        'id' => $apiUser['id'],
+                        'fullname' => $apiUser['fullname'] ?? 'Unknown',
+                        'email' => $apiUser['email'] ?? 'unknown@example.com',
+                        'referral_code' => $apiUser['referralCode'] ?? '',
+                        'referralCode' => $apiUser['referralCode'] ?? '',
+                        'active' => $apiUser['active'] ?? true,
+                        'plan' => $apiUser['plan'] ?? 'FREE',
+                        'avatar_url' => $apiUser['avatarUrl'] ?? null,
+                        'phone_number' => $apiUser['phoneNumber'] ?? null,
                     ];
-                }, $uplineChain),
+                }, $apiUsers),
             ]);
             
         } catch (\Exception $e) {
-            Log::error('Failed to get user matrix info', [
+            Log::error('Failed to get user matrix info from API', [
                 'error' => $e->getMessage(),
                 'user_id' => $request->user()?->id,
+                'referral_code' => $request->user()?->referral_code,
             ]);
             
             return response()->json([
-                'message' => 'Không thể lấy thông tin ma trận.',
+                'message' => 'Không thể lấy thông tin ma trận từ API.',
             ], 500);
         }
     }
     
     /**
-     * Get matrix tree for a user.
+     * Get matrix tree for a user from API.
      */
     public function tree(Request $request, ?User $user = null): JsonResponse
     {
         try {
             $targetUser = $user ?? $request->user();
-            $depth = (int) $request->query('depth', 1);
             
-            if (!$targetUser) {
+            if (!$targetUser || !$targetUser->referral_code) {
                 return response()->json([
-                    'message' => 'Người dùng không tồn tại.',
+                    'message' => 'Người dùng không có mã giới thiệu.',
                 ], 404);
             }
+
+            // Fetch users from API that match this user's referral code
+            $apiUsers = $this->externalApiService->fetchUsersByReferralCode($targetUser->referral_code);
             
-            $node = $targetUser->node;
-            
-            if (!$node) {
-                return response()->json([
-                    'message' => 'Người dùng chưa được đặt trong ma trận.',
-                ], 404);
-            }
-            
-            $tree = $this->buildTreeData($node, $depth);
+            $tree = $this->buildApiTreeData($targetUser, $apiUsers);
             
             return response()->json([
                 'user' => [
@@ -128,13 +155,14 @@ class MatrixController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            Log::error('Failed to get matrix tree', [
+            Log::error('Failed to get matrix tree from API', [
                 'error' => $e->getMessage(),
                 'user_id' => $user?->id ?? $request->user()?->id,
+                'referral_code' => $user?->referral_code ?? $request->user()?->referral_code,
             ]);
             
             return response()->json([
-                'message' => 'Không thể lấy cây ma trận.',
+                'message' => 'Không thể lấy cây ma trận từ API.',
             ], 500);
         }
     }
@@ -181,220 +209,152 @@ class MatrixController extends Controller
     }
     
     /**
-     * Get paginated downline list for current user (optimized for large datasets).
+     * Get paginated downline list for current user using external API.
      */
     public function downline(Request $request): JsonResponse
     {
         try {
-            $adminId = 1;
-            $pdo = DB::connection()->getPdo();
-
-            // Check if admin node exists
-            $stmt = $pdo->prepare('SELECT COUNT(*) as count FROM nodes WHERE id = ? AND user_id = ?');
-            $stmt->execute([$adminId, $adminId]);
-            $nodeCheck = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-            if ($nodeCheck['count'] == 0) {
+            $user = $request->user();
+            if (!$user || !$user->referral_code) {
                 return response()->json([
-                    'message' => 'Không tìm thấy admin node.',
+                    'message' => 'Người dùng không có mã giới thiệu.',
                 ], 404);
             }
 
-            // Get node data
-            $stmt = $pdo->prepare('SELECT * FROM nodes WHERE id = ?');
-            $stmt->execute([$adminId]);
-            $nodeData = $stmt->fetch(\PDO::FETCH_ASSOC);
-
             // Parameters for pagination and filtering
             $page = (int) $request->query('page', 1);
-            $perPage = min((int) $request->query('per_page', 50), 100);
+            $perPage = min((int) $request->query('per_page', 10), 100);
             $search = $request->query('search', '');
-            $sortBy = $request->query('sort_by', 'position');
-            $sortOrder = $request->query('sort_order', 'asc');
 
-            $searchParam = $search ? "%{$search}%" : '';
-            $searchCondition = $search ? "AND (u.fullname LIKE ? OR u.email LIKE ? OR u.referral_code LIKE ?)" : '';
-
-            $countStmt = $pdo->prepare("
-                SELECT COUNT(*) as total
-                FROM nodes n
-                INNER JOIN users u ON n.user_id = u.id
-                WHERE n.parent_id = ?
-                {$searchCondition}
-            ");
-
-            if ($search) {
-                $countStmt->execute([$nodeData['id'], $searchParam, $searchParam, $searchParam]);
-            } else {
-                $countStmt->execute([$nodeData['id']]);
-            }
-
-            $totalResult = $countStmt->fetch(\PDO::FETCH_ASSOC);
-            $total = $totalResult['total'] ?? 0;
-
-            $offset = ($page - 1) * $perPage;
-            $orderDirection = $sortOrder === 'desc' ? 'DESC' : 'ASC';
-
-            $allowedSortFields = ['position', 'fullname', 'email', 'created_at'];
-            $sortField = in_array($sortBy, $allowedSortFields) ? $sortBy : 'position';
-
-            $mainStmt = $pdo->prepare("
-                SELECT
-                    n.id,
-                    n.user_id,
-                    u.fullname,
-                    u.email,
-                    u.referral_code,
-                    u.active as is_active,
-                    n.position,
-                    n.depth,
-                    n.created_at
-                FROM nodes n
-                INNER JOIN users u ON n.user_id = u.id
-                WHERE n.parent_id = ?
-                {$searchCondition}
-                ORDER BY {$sortField} {$orderDirection}
-                LIMIT ? OFFSET ?
-            ");
-
-            if ($search) {
-                $mainStmt->execute([$nodeData['id'], $searchParam, $searchParam, $searchParam, $perPage, $offset]);
-            } else {
-                $mainStmt->execute([$nodeData['id'], $perPage, $offset]);
-            }
-
-            $downlines = $mainStmt->fetchAll(\PDO::FETCH_ASSOC);
-
-            $formattedDownlines = [];
-            foreach ($downlines as $downline) {
-                // Ensure UTF-8 encoding
-                $fullname = mb_convert_encoding($downline['fullname'] ?? '', 'UTF-8', 'UTF-8');
-                $email = mb_convert_encoding($downline['email'] ?? '', 'UTF-8', 'UTF-8');
-                $referralCode = mb_convert_encoding($downline['referral_code'] ?? '', 'UTF-8', 'UTF-8');
-                
-                $formattedDownlines[] = [
-                    'id' => (int) $downline['id'],
-                    'user_id' => (int) $downline['user_id'],
-                    'fullname' => $fullname,
-                    'email' => $email,
-                    'referral_code' => $referralCode,
-                    'position' => (int) $downline['position'],
-                    'depth' => (int) $downline['depth'],
-                    'created_at' => $downline['created_at'],
-                    'is_active' => (bool) $downline['is_active'],
-                    'avatar' => mb_substr($fullname ?: $email, 0, 1),
-                ];
-            }
+            // Fetch users from external API with pagination
+            $result = $this->externalApiService->fetchUsersByReferralCodePaginated(
+                $user->referral_code, 
+                $page, 
+                $perPage, 
+                $search
+            );
 
             return response()->json([
-                'downline' => $formattedDownlines,
-                'pagination' => [
-                    'current_page' => $page,
-                    'per_page' => $perPage,
-                    'total' => $total,
-                    'last_page' => ceil($total / $perPage),
-                    'from' => ($page - 1) * $perPage + 1,
-                    'to' => min($page * $perPage, $total),
-                    'has_more_pages' => $page < ceil($total / $perPage),
-                ],
+                'downline' => $result['data'],
+                'pagination' => $result['pagination'],
                 'filters' => [
                     'search' => $search,
-                    'sort_by' => $sortBy,
-                    'sort_order' => $sortOrder,
                 ],
-                'summary' => [
-                    'total_downlines' => $total,
-                    'active_downlines' => (function() use ($pdo, $nodeData, $search, $searchParam, $searchCondition) {
-                        $stmt = $pdo->prepare("
-                            SELECT COUNT(*) as count
-                            FROM nodes n
-                            INNER JOIN users u ON n.user_id = u.id
-                            WHERE n.parent_id = ? AND u.active = 1
-                            {$searchCondition}
-                        ");
-                        if ($search) {
-                            $stmt->execute([$nodeData['id'], $searchParam, $searchParam, $searchParam]);
-                        } else {
-                            $stmt->execute([$nodeData['id']]);
-                        }
-                        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-                        return $result['count'] ?? 0;
-                    })(),
-                ],
+                'summary' => $result['summary'],
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Failed to get downline list', [
+            Log::error('Failed to get downline list from API', [
                 'error' => $e->getMessage(),
+                'user_id' => $request->user()?->id,
+                'referral_code' => $request->user()?->referral_code,
             ]);
 
             return response()->json([
-                'message' => 'Không thể lấy danh sách downline.',
+                'message' => 'Không thể lấy danh sách downline từ API.',
             ], 500);
         }
     }
     
     /**
-     * Build tree data structure.
+     * Build tree data structure from API data.
      */
-    private function buildTreeData($node, int $maxDepth): array
+    private function buildApiTreeData(User $user, array $apiUsers): array
     {
+        $config = config('mlm');
+        $maxWidth = $config['width']; // Maximum width for layout
+        $actualCount = count($apiUsers); // Actual number of items to display
+        
         $data = [
-            'id' => $node->id,
+            'id' => $user->id,
             'user' => [
-                'id' => $node->user->id,
-                'fullname' => $node->user->fullname,
-                'email' => $node->user->email,
-                'referral_code' => $node->user->referral_code,
+                'id' => $user->id,
+                'fullname' => $user->fullname,
+                'email' => $user->email,
+                'referral_code' => $user->referral_code,
+                'role' => $user->role,
+                'active' => $user->active,
             ],
-            'depth' => $node->depth,
-            'position' => $node->position,
-            'children' => [],
+            'depth' => 0,
+            'position' => 0,
+            'children' => array_fill(0, $actualCount, null), // Initialize with actual count, not max width
         ];
         
-        if ($maxDepth > 0) {
-            $children = $node->children()->with('user')->orderBy('position')->get();
-            
-            foreach ($children as $child) {
-                $data['children'][] = $this->buildTreeData($child, $maxDepth - 1);
-            }
+        // Add API users as children in matrix positions
+        foreach ($apiUsers as $index => $apiUser) {
+            $data['children'][$index] = [
+                'id' => $apiUser['id'],
+                'user' => [
+                    'id' => $apiUser['id'],
+                    'fullname' => $apiUser['fullname'] ?? 'Unknown',
+                    'email' => $apiUser['email'] ?? 'unknown@example.com',
+                    'referral_code' => $apiUser['referral_code'] ?? '', // Map to referral_code for consistency
+                    'referralCode' => $apiUser['referralCode'] ?? '', // Keep both for compatibility
+                    'active' => $apiUser['active'] ?? true,
+                    'plan' => $apiUser['plan'] ?? 'FREE',
+                    'avatar_url' => $apiUser['avatarUrl'] ?? null,
+                    'phone_number' => $apiUser['phoneNumber'] ?? null,
+                    'role' => 'API_USER', // Mark as API user
+                ],
+                'depth' => 1,
+                'position' => $index,
+                'children' => array_fill(0, $maxWidth, null), // API users can have children too
+                'is_api_user' => true, // Flag to identify API users
+            ];
         }
+        
+        // Add summary info
+        $data['children_info'] = [
+            'total_children' => $actualCount,
+            'filled_slots' => $actualCount,
+            'available_slots' => 0, // No empty slots since we show exact count
+            'has_more' => false, // Will be set by caller based on pagination
+        ];
         
         return $data;
     }
     
     /**
-     * Get matrix visualization data.
+     * Get matrix visualization data from API.
      */
     public function visualization(Request $request): JsonResponse
     {
         try {
-            $user = User::find(1); // Use ID 1 for admin user
-            if (!$user) {
+            $user = $request->user();
+            
+            if (!$user || !$user->referral_code) {
                 return response()->json([
-                    'message' => 'Không tìm thấy admin user.',
+                    'message' => 'Người dùng không có mã giới thiệu.',
                 ], 404);
             }
 
-            $node = $user->node;
+            // Pagination params for keeping tree consistent with downline list
+            $page = (int) $request->query('page', 1);
+            $perPage = min((int) $request->query('per_page', 10), 100);
 
-            if (!$node) {
-                return response()->json([
-                    'message' => 'Người dùng chưa được đặt trong ma trận.',
-                ], 404);
-            }
+            // Fetch users from API that match this user's referral code with pagination (same as downline list)
+            $result = $this->externalApiService->fetchUsersByReferralCodePaginated(
+                $user->referral_code,
+                $page,
+                $perPage,
+                $request->query('search', '')
+            );
+            $apiUsers = $result['data'];
             
             $config = config('mlm');
             $width = $config['width'];
             $maxDepth = min(1, $config['max_depth']); // Chỉ hiển thị 1 tầng
 
-            // For large datasets, limit visualization to prevent performance issues
-            $maxVisualizationChildren = 10; // Chỉ hiển thị tối đa 10 children trong visualization
-
-            $visualization = $this->buildVisualizationData($node, $width, $maxDepth, $maxVisualizationChildren);
+            // Build visualization data from API
+            $visualization = $this->buildApiTreeData($user, $apiUsers);
+            // Augment children_info for UI display (avoid undefined)
+            $visualization['children_info']['displayed'] = count($apiUsers);
+            $visualization['children_info']['total'] = $result['pagination']['total'] ?? count($apiUsers);
+            $visualization['children_info']['has_more'] = ($result['pagination']['has_more_pages'] ?? false) || (($result['pagination']['total'] ?? 0) > $visualization['children_info']['displayed']);
             
             return response()->json([
                 'visualization' => $visualization,
+                'pagination' => $result['pagination'] ?? null,
                 'config' => [
                     'width' => $width,
                     'max_depth' => $maxDepth,
@@ -402,13 +362,14 @@ class MatrixController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            Log::error('Failed to get matrix visualization', [
+            Log::error('Failed to get matrix visualization from API', [
                 'error' => $e->getMessage(),
                 'user_id' => $request->user()?->id,
+                'referral_code' => $request->user()?->referral_code,
             ]);
             
             return response()->json([
-                'message' => 'Không thể lấy dữ liệu hiển thị ma trận.',
+                'message' => 'Không thể lấy dữ liệu hiển thị ma trận từ API.',
             ], 500);
         }
     }

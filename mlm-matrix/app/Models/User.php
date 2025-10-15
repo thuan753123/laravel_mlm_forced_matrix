@@ -199,4 +199,12 @@ class User extends Authenticatable
     {
         $this->update(['last_login_time' => now()]);
     }
+
+    /**
+     * Find user by referral code.
+     */
+    public static function findByReferralCode(string $referralCode): ?User
+    {
+        return static::where('referral_code', $referralCode)->first();
+    }
 }

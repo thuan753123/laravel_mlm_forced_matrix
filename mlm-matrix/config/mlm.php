@@ -16,4 +16,8 @@ return [
         'kyc_required' => false,
     ],
     'idempotency' => true,
+    'external_api' => [
+        'url' => env('EXTERNAL_API_URL', 'http://localhost:3000/api/v1'),
+        'timeout' => (int) env('EXTERNAL_API_TIMEOUT', 30),
+    ],
 ];

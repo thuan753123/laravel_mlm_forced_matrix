@@ -36,8 +36,8 @@ return [
         'visualization' => 'Hiển thị ma trận',
     ],
     'orders_page' => [
-        'heading' => 'Đơn hàng',
-        'create' => 'Tạo đơn',
+        'heading' => 'User Giới Thiệu Thanh Toán',
+        'create' => 'Xem danh sách',
         'amount' => 'Giá trị (VND)',
         'status' => 'Trạng thái',
         'pay' => 'Xác nhận thanh toán',

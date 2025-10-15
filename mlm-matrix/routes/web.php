@@ -54,7 +54,10 @@ Route::middleware(['auth'])->group(function () {
     
     // Order routes
     Route::prefix('orders')->group(function () {
-        Route::get('/', [OrderController::class, 'index'])->name('orders.index');
+        // Render UI
+        Route::get('/', [OrderController::class, 'page'])->name('orders.index');
+        // API endpoints under web session for simplicity
+        Route::get('/list', [OrderController::class, 'index'])->name('orders.list');
         Route::post('/', [OrderController::class, 'store'])->name('orders.store');
         Route::get('/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('/{order}/pay', [OrderController::class, 'pay'])->name('orders.pay');

@@ -13,8 +13,17 @@ use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
 {
     public function __construct(
-        private CommissionService $commissionService
+        private CommissionService $commissionService,
+        private \App\Services\ExternalApiService $externalApiService
     ) {}
+
+    /**
+     * Render Orders UI page.
+     */
+    public function page()
+    {
+        return view('orders.index');
+    }
 
     /**
      * Get orders for current user.
@@ -23,25 +32,31 @@ class OrderController extends Controller
     {
         try {
             $user = $request->user();
-            $perPage = (int) $request->query('per_page', 15);
-            $status = $request->query('status');
-            
-            $query = $user->orders()->with('cycle');
-            
-            if ($status) {
-                $query->where('status', $status);
+            $page = (int) $request->query('page', 1);
+            $perPage = (int) $request->query('per_page', 20);
+            $status = $request->query('status'); // SUCCESS|PENDING|FAILED
+            $search = $request->query('search', '');
+
+            if (!$user || !$user->referral_code) {
+                return response()->json([
+                    'orders' => [],
+                    'pagination' => [
+                        'current_page' => $page,
+                        'last_page' => 0,
+                        'per_page' => $perPage,
+                        'total' => 0,
+                    ],
+                ]);
             }
-            
-            $orders = $query->orderBy('created_at', 'desc')
-                ->paginate($perPage);
-            
+
+            $result = $this->externalApiService->fetchPaymentsPaginated($user->referral_code, $page, $perPage, $status, $search);
+
             return response()->json([
-                'orders' => $orders->items(),
-                'pagination' => [
-                    'current_page' => $orders->currentPage(),
-                    'last_page' => $orders->lastPage(),
-                    'per_page' => $orders->perPage(),
-                    'total' => $orders->total(),
+                'orders' => $result['data'],
+                'pagination' => $result['pagination'],
+                'filters' => [
+                    'status' => $status,
+                    'search' => $search,
                 ],
             ]);
             

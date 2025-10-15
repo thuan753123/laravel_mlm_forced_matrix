@@ -7,9 +7,9 @@
             <div class="p-6 text-gray-900">
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold">{{ __('ui.orders_page.heading') }}</h1>
-                    <button onclick="openCreateOrderModal()" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    <!-- <button onclick="openCreateOrderModal()" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                         {{ __('ui.orders_page.create') }}
-                    </button>
+                    </button> -->
                 </div>
                 
                 @auth
@@ -75,7 +75,24 @@
                     <!-- Orders Table -->
                     <div class="bg-white shadow overflow-hidden sm:rounded-md">
                         <div class="px-4 py-5 sm:p-6">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Danh Sách Đơn Hàng</h3>
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">Danh Sách Thanh Toán</h3>
+                                <div class="flex gap-2 items-center">
+                                    <input id="order-search" type="text" placeholder="Tìm theo mã GD, nội dung, ngân hàng..." class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
+                                    <select id="order-status" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
+                                        <option value="">Tất cả trạng thái</option>
+                                        <option value="SUCCESS">Thành công</option>
+                                        <option value="PENDING">Đang xử lý</option>
+                                        <option value="FAILED">Thất bại</option>
+                                    </select>
+                                    <select id="order-per-page" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
+                                        <option value="10">10 / trang</option>
+                                        <option value="20" selected>20 / trang</option>
+                                        <option value="50">50 / trang</option>
+                                    </select>
+                                    <button id="order-refresh" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Làm mới</button>
+                                </div>
+                            </div>
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
@@ -83,6 +100,7 @@
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('ui.orders_page.amount') }}</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('ui.orders_page.status') }}</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách hàng</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Tạo</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hành Động</th>
                                         </tr>
@@ -96,6 +114,7 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <div id="orders-pagination" class="flex items-center justify-between mt-4"></div>
                         </div>
                     </div>
                 @else
@@ -153,6 +172,19 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     loadOrdersData();
+    const search = document.getElementById('order-search');
+    const status = document.getElementById('order-status');
+    const perPage = document.getElementById('order-per-page');
+    const refresh = document.getElementById('order-refresh');
+
+    let t;
+    search.addEventListener('input', function() {
+        clearTimeout(t);
+        t = setTimeout(() => loadOrdersList(1), 400);
+    });
+    status.addEventListener('change', () => loadOrdersList(1));
+    perPage.addEventListener('change', () => loadOrdersList(1));
+    refresh.addEventListener('click', () => loadOrdersList());
 });
 
 async function loadOrdersData() {
@@ -174,9 +206,20 @@ async function loadOrdersData() {
     }
 }
 
-async function loadOrdersList() {
+let ordersState = { page: 1 };
+async function loadOrdersList(page) {
     try {
-        const response = await fetch('/api/orders');
+        const search = document.getElementById('order-search').value || '';
+        const status = document.getElementById('order-status').value || '';
+        const perPage = parseInt(document.getElementById('order-per-page').value || '20');
+        if (page) ordersState.page = page;
+        const params = new URLSearchParams({
+            page: String(ordersState.page),
+            per_page: String(perPage),
+            search,
+            status,
+        });
+        const response = await fetch('/orders/list?' + params.toString());
         if (response.ok) {
             const data = await response.json();
             const tbody = document.getElementById('orders-table-body');
@@ -184,14 +227,21 @@ async function loadOrdersList() {
             if (data.orders && data.orders.length > 0) {
                 tbody.innerHTML = data.orders.map(order => `
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${order.id}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Intl.NumberFormat('vi-VN').format(order.amount)} ${order.currency}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${order.provider_txn_ref || order.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Intl.NumberFormat('vi-VN').format(order.amount)} VND</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(order.status)}">
                                 ${getStatusText(order.status)}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(order.created_at).toLocaleDateString('vi-VN')}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div class="flex flex-col">
+                                <span class="text-gray-900 font-medium">${order.user_fullname || '-'}</span>
+                                <span class="text-gray-500">${order.user_email || ''}</span>
+                                <span class="text-gray-400">${order.user_phone_number || ''}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(order.pay_date || order.createdAt || order.created_at)}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             ${getActionButtons(order)}
                         </td>
@@ -200,6 +250,7 @@ async function loadOrdersList() {
             } else {
                 tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Chưa có đơn hàng nào</td></tr>';
             }
+            renderOrdersPagination(data.pagination);
         }
     } catch (error) {
         console.error('Error loading orders list:', error);
@@ -207,13 +258,27 @@ async function loadOrdersList() {
     }
 }
 
+function renderOrdersPagination(p) {
+    const el = document.getElementById('orders-pagination');
+    if (!p || p.total <= p.per_page) { el.innerHTML = ''; return; }
+    const prevDisabled = p.current_page <= 1 ? 'opacity-50 cursor-not-allowed' : '';
+    const nextDisabled = p.current_page >= p.last_page ? 'opacity-50 cursor-not-allowed' : '';
+    el.innerHTML = `
+        <div class="text-sm text-gray-600">Hiển thị ${p.from}-${p.to} của ${p.total}</div>
+        <div class="flex gap-2">
+            <button class="px-3 py-2 border rounded ${prevDisabled}" ${p.current_page <= 1 ? 'disabled' : ''} onclick="loadOrdersList(${p.current_page - 1})">Trước</button>
+            <button class="px-3 py-2 border rounded ${nextDisabled}" ${p.current_page >= p.last_page ? 'disabled' : ''} onclick="loadOrdersList(${p.current_page + 1})">Tiếp</button>
+        </div>
+    `;
+}
+
 function getStatusClass(status) {
     switch (status) {
-        case 'paid':
+        case 'SUCCESS':
             return 'bg-green-100 text-green-800';
-        case 'pending':
+        case 'PENDING':
             return 'bg-yellow-100 text-yellow-800';
-        case 'cancelled':
+        case 'FAILED':
             return 'bg-red-100 text-red-800';
         default:
             return 'bg-gray-100 text-gray-800';
@@ -222,12 +287,12 @@ function getStatusClass(status) {
 
 function getStatusText(status) {
     switch (status) {
-        case 'paid':
-            return 'Đã thanh toán';
-        case 'pending':
-            return 'Chờ thanh toán';
-        case 'cancelled':
-            return 'Đã hủy';
+        case 'SUCCESS':
+            return 'Thành công';
+        case 'PENDING':
+            return 'Đang xử lý';
+        case 'FAILED':
+            return 'Thất bại';
         default:
             return status;
     }
@@ -236,14 +301,34 @@ function getStatusText(status) {
 function getActionButtons(order) {
     let buttons = '';
     
-    if (order.status === 'pending') {
-        buttons += `<button onclick="payOrder(${order.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">${__('ui.orders_page.pay')}</button>`;
-        buttons += `<button onclick="cancelOrder(${order.id})" class="text-red-600 hover:text-red-900">${__('ui.orders_page.cancel')}</button>`;
-    }
-    
-    buttons += `<button onclick="viewOrder(${order.id})" class="text-gray-600 hover:text-gray-900 ml-3">${__('ui.common.view')}</button>`;
+    // Payments are read-only from external API
+    buttons += `<button onclick="viewPayment('${order.id}')" class="text-gray-600 hover:text-gray-900 ml-3">Xem</button>`;
     
     return buttons;
+}
+
+// Safe date formatter (reuse from matrix page pattern)
+function formatDate(value) {
+    if (!value) return '-';
+    try {
+        if (typeof value === 'string' && (value.includes('CH') || value.includes('SA'))) {
+            const m = value.match(/(\d{1,2}):(\d{2})\s+(CH|SA)\s+(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            if (m) {
+                let h = parseInt(m[1], 10);
+                if (m[3] === 'CH' && h !== 12) h += 12;
+                if (m[3] === 'SA' && h === 12) h = 0;
+                const iso = `${m[6]}-${m[5].padStart(2,'0')}-${m[4].padStart(2,'0')}T${String(h).padStart(2,'0')}:${m[2]}:00`;
+                const d = new Date(iso);
+                return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('vi-VN');
+            }
+        }
+        const d = new Date(value);
+        return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('vi-VN');
+    } catch { return '-'; }
+}
+
+function viewPayment(id) {
+    alert('Mã giao dịch: ' + id);
 }
 
 function openCreateOrderModal() {

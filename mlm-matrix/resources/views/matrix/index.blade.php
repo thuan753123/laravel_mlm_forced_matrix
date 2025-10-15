@@ -194,8 +194,9 @@
                                     <option value="desc">Giảm dần</option>
                                 </select>
                                 <select id="per-page" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                    <option value="10" selected>10 mỗi trang</option>
                                     <option value="25">25 mỗi trang</option>
-                                    <option value="50" selected>50 mỗi trang</option>
+                                    <option value="50">50 mỗi trang</option>
                                     <option value="100">100 mỗi trang</option>
                                 </select>
                             </div>
@@ -210,6 +211,7 @@
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avatar</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SĐT</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã GT</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tham gia</th>
@@ -260,17 +262,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadMatrixData() {
     try {
-        // Load matrix stats using web routes
-        const statsResponse = await fetch('/matrix/stats');
-        if (statsResponse.ok) {
-            const statsData = await statsResponse.json();
-            document.getElementById('total-downline').textContent = statsData.total_downline || 0;
-            document.getElementById('direct-downline').textContent = statsData.direct_downline || 0;
-            document.getElementById('current-depth').textContent = statsData.depth === 0 ? 'Root' : 'Direct Downline';
-            document.getElementById('position').textContent = statsData.position || 0;
+        // Load matrix data from API
+        const matrixResponse = await fetch('/api/matrix/me');
+        if (matrixResponse.ok) {
+            const matrixData = await matrixResponse.json();
+            
+            // Update stats from API data
+            document.getElementById('total-downline').textContent = matrixData.stats?.total_downline || 0;
+            document.getElementById('direct-downline').textContent = matrixData.downline_count || 0;
+            document.getElementById('current-depth').textContent = 'Direct Downline';
+            document.getElementById('position').textContent = '0'; // Root position
         }
 
-        // Load matrix tree
+        // Load matrix tree (will be called again when downline list loads)
         loadMatrixTree();
 
         // Load upline chain
@@ -330,12 +334,11 @@ function transformToD3Tree(treeData) {
     // Transform a single node for D3.js hierarchy
     function transformNode(node) {
         if (!node) return null;
-
         return {
             id: node.id,
             name: node.user?.fullname || node.user?.email || 'Unknown',
             email: node.user?.email || '',
-            referral_code: node.user?.referral_code || '',
+            referral_code: node.user?.referral_code || node.user?.referralCode || '',
             sponsor: node.sponsor,
             depth: node.depth || 0,
             position: node.position || 0,
@@ -366,9 +369,13 @@ function renderD3Tree(data) {
 
     console.log('Transformed data for D3.js:', transformedData);
 
+    // Calculate dynamic spacing based on actual children count
+    const actualChildrenCount = transformedData.children ? transformedData.children.length : 0;
+    const dynamicSpacing = actualChildrenCount > 0 ? Math.max(1.2, 2.5 - (actualChildrenCount * 0.1)) : 1.2;
+    
     const treeLayout = d3.tree()
         .nodeSize([nodeWidth * 1.5, linkDistance])
-        .separation((a, b) => a.parent === b.parent ? 1.2 : 1.5);
+        .separation((a, b) => a.parent === b.parent ? dynamicSpacing : 1.5);
 
     const root = d3.hierarchy(transformedData);
     treeLayout(root);
@@ -528,15 +535,19 @@ function updateVisualizationInfo(data) {
 
     const visualization = data.visualization;
     const childrenInfo = visualization.children_info || {};
+    const actualChildrenCount = visualization.children?.filter(c => c)?.length || 0;
+    const displayed = childrenInfo.displayed ?? actualChildrenCount;
+    const total = childrenInfo.total ?? displayed;
+    const hasMore = !!childrenInfo.has_more && total > displayed;
 
     let infoText = '';
 
-    if (childrenInfo.has_more) {
-        infoText = `Hiển thị ${childrenInfo.displayed}/${childrenInfo.total} downlines. Tổng cộng ${childrenInfo.total} downlines trực tiếp - xem tất cả trong danh sách bên dưới.`;
-    } else if (childrenInfo.total > 0) {
-        infoText = `${childrenInfo.total} downlines trực tiếp`;
-    } else {
+    if (total === 0) {
         infoText = 'Chưa có downlines';
+    } else if (hasMore) {
+        infoText = `Đang xem ${actualChildrenCount} trên tổng số ${total} downlines trực tiếp. Xem đầy đủ ở danh sách bên dưới.`;
+    } else {
+        infoText = `Hiển thị ${actualChildrenCount} downlines trực tiếp`;
     }
 
     infoElement.innerHTML = infoText;
@@ -628,7 +639,13 @@ function showEmptyState(message) {
 async function loadMatrixTree() {
     try {
         console.log('Loading matrix tree with D3.js...');
-        const response = await fetch('/matrix/visualization?depth=1');
+        const params = new URLSearchParams({
+            depth: 1,
+            page: currentDownlinePage,
+            per_page: currentDownlineFilters.per_page,
+            search: currentDownlineFilters.search || ''
+        });
+        const response = await fetch(`/matrix/visualization?${params.toString()}`);
 
         if (response.ok) {
             const data = await response.json();
@@ -742,7 +759,7 @@ let currentDownlineFilters = {
     search: '',
     sort_by: 'position',
     sort_order: 'asc',
-    per_page: 50
+    per_page: 10
 };
 
 // Load downline list with pagination and filtering
@@ -774,6 +791,9 @@ async function loadDownlineList(page = 1, filters = {}) {
             // Update summary
             updateDownlineSummary(data);
 
+            // Update matrix stats
+            updateMatrixStats(data);
+
             // Render table rows
             renderDownlineTable(data.downline);
 
@@ -783,6 +803,9 @@ async function loadDownlineList(page = 1, filters = {}) {
             // Update current state
             currentDownlinePage = page;
             currentDownlineFilters = { ...currentDownlineFilters, ...filters };
+
+            // Reload matrix tree to match current page
+            loadMatrixTree();
         } else {
             throw new Error(`Failed to load downline data: ${response.status} ${response.statusText}`);
         }
@@ -803,13 +826,32 @@ async function loadDownlineList(page = 1, filters = {}) {
 // Update downline summary
 function updateDownlineSummary(data) {
     const summary = document.getElementById('downline-summary');
-    const total = data.pagination?.total || 0;
-    const active = data.summary?.active_downlines || 0;
+    const total = data.pagination?.total ?? 0;
+    const from = data.pagination?.from ?? 0;
+    const to = data.pagination?.to ?? 0;
+    const perPage = data.pagination?.per_page ?? currentDownlineFilters.per_page;
+    const active = data.summary?.active_downlines ?? 0;
 
     summary.innerHTML = `
-        Tổng: <strong>${total}</strong> downline
-        (${active} đang hoạt động)
+        Đang xem <strong>${to - from + (total ? 1 : 0)}</strong>/<strong>${total}</strong> downlines trực tiếp (mỗi trang ${perPage}). ${active} đang hoạt động.
     `;
+}
+
+// Update matrix stats
+function updateMatrixStats(data) {
+    const total = data.pagination?.total ?? 0;
+    const active = data.summary?.active_downlines ?? 0;
+    
+    // Update total downline
+    document.getElementById('total-downline').textContent = total;
+    
+    // Update direct downline (current page count)
+    const currentPageCount = data.downline?.length ?? 0;
+    document.getElementById('direct-downline').textContent = currentPageCount;
+    
+    // Update depth and position
+    document.getElementById('current-depth').textContent = 'Direct Downline';
+    document.getElementById('position').textContent = '0'; // Root position
 }
 
 // Render downline table rows
@@ -844,6 +886,9 @@ function renderDownlineTable(downlines) {
                 ${downline.email}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${downline.phone_number || ''}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 ${downline.referral_code}
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
@@ -856,10 +901,52 @@ function renderDownlineTable(downlines) {
                 </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                ${new Date(downline.created_at).toLocaleDateString('vi-VN')}
+                ${formatDate(downline.createdAt || downline.created_at)}
             </td>
         </tr>
     `).join('');
+}
+
+// Safe date formatter to avoid "Invalid Date"
+function formatDate(value) {
+    if (!value) return '-';
+    try {
+        let dateObj;
+        if (typeof value === 'number') {
+            // Treat as epoch milliseconds or seconds
+            dateObj = new Date(value > 1e12 ? value : value * 1000);
+        } else if (typeof value === 'string') {
+            // Handle Vietnamese date format: "11:31 CH 09/10/2025"
+            if (value.includes('CH') || value.includes('SA')) {
+                // Convert Vietnamese time format to ISO
+                const timeMatch = value.match(/(\d{1,2}):(\d{2})\s+(CH|SA)\s+(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                if (timeMatch) {
+                    const [, hours, minutes, period, day, month, year] = timeMatch;
+                    let hour24 = parseInt(hours);
+                    if (period === 'CH' && hour24 !== 12) hour24 += 12;
+                    if (period === 'SA' && hour24 === 12) hour24 = 0;
+                    
+                    const isoString = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hour24.toString().padStart(2, '0')}:${minutes}:00`;
+                    dateObj = new Date(isoString);
+                } else {
+                    return value; // Return original if can't parse
+                }
+            } else {
+                // Try parse ISO/date string
+                const parsed = Date.parse(value);
+                if (isNaN(parsed)) return '-';
+                dateObj = new Date(parsed);
+            }
+        } else if (value instanceof Date) {
+            dateObj = value;
+        } else {
+            return '-';
+        }
+        if (isNaN(dateObj.getTime())) return '-';
+        return dateObj.toLocaleDateString('vi-VN');
+    } catch (e) {
+        return '-';
+    }
 }
 
 // Render pagination controls

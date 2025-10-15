@@ -8,67 +8,6 @@
                 <h1 class="text-2xl font-bold mb-6">{{ __('ui.nav.dashboard') }}</h1>
                 
                 @auth
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <!-- Matrix Stats -->
-                        <div class="bg-blue-50 p-6 rounded-lg">
-                            <div class="flex items-center">
-                                <div class="p-2 bg-blue-100 rounded-lg">
-                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-600">Tổng Downline</p>
-                                    <p class="text-2xl font-semibold text-gray-900" id="total-downline">-</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Orders Stats -->
-                        <div class="bg-green-50 p-6 rounded-lg">
-                            <div class="flex items-center">
-                                <div class="p-2 bg-green-100 rounded-lg">
-                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-600">Tổng Đơn Hàng</p>
-                                    <p class="text-2xl font-semibold text-gray-900" id="total-orders">-</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Commissions Stats -->
-                        <div class="bg-yellow-50 p-6 rounded-lg">
-                            <div class="flex items-center">
-                                <div class="p-2 bg-yellow-100 rounded-lg">
-                                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-600">Tổng Hoa Hồng</p>
-                                    <p class="text-2xl font-semibold text-gray-900" id="total-commissions">-</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Current Cycle -->
-                        <div class="bg-purple-50 p-6 rounded-lg">
-                            <div class="flex items-center">
-                                <div class="p-2 bg-purple-100 rounded-lg">
-                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-600">Chu Kỳ Hiện Tại</p>
-                                    <p class="text-2xl font-semibold text-gray-900" id="current-cycle">-</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Quick Actions -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
