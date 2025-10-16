@@ -33,6 +33,19 @@ class AdminUserSeeder extends Seeder
             $placementService = app(PlacementService::class);
             $placementService->place($admin);
         }
+        
+        for ($i = 1; $i <= 50; $i++) {
+            User::updateOrCreate(
+                ['email' => "4168{$i}@ai168.vn"],
+                [
+                    'password' => Hash::make('123123123'),
+                    'role' => 'member',
+                    'fullname' => "User {$i}",
+                    'active' => true,
+                    'referral_code' => "4168{$i}",
+                ]
+            );
+        }
 
         $this->command->info('Admin user created successfully!');
         $this->command->info('Email: admin@mlm.com');
