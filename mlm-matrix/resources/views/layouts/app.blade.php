@@ -5,7 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ __('ui.title') }} - Hệ thống quản lý đại lý</title>
+
+    <!-- Meta tags for social sharing -->
+    <meta name="description" content="Hệ thống quản lý đại lý AI VN168 - Quản lý ma trận, đơn hàng và hoa hồng">
+    <meta name="keywords" content="đại lý AI, VN168, quản lý ma trận, MLM, hoa hồng">
+    <meta name="author" content="AI VN168">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ __('ui.title') }} - Hệ thống quản lý đại lý">
+    <meta property="og:description" content="Hệ thống quản lý đại lý AI VN168 - Quản lý ma trận, đơn hàng và hoa hồng">
+    <meta property="og:image" content="{{ asset('images/og-image.jpg') }}">
+    <meta property="og:site_name" content="{{ __('ui.title') }}">
+    <meta property="og:locale" content="vi_VN">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ url()->current() }}">
+    <meta property="twitter:title" content="{{ __('ui.title') }} - Hệ thống quản lý đại lý">
+    <meta property="twitter:description" content="Hệ thống quản lý đại lý AI VN168 - Quản lý ma trận, đơn hàng và hoa hồng">
+    <meta property="twitter:image" content="{{ asset('images/og-image.jpg') }}">
+    
+    <!-- Zalo -->
+    <meta property="zalo:title" content="{{ __('ui.title') }} - Hệ thống quản lý đại lý">
+    <meta property="zalo:description" content="Hệ thống quản lý đại lý AI VN168 - Quản lý ma trận, đơn hàng và hoa hồng">
+    <meta property="zalo:image" content="{{ asset('images/og-image.jpg') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
