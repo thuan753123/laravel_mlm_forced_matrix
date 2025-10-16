@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'title' => 'Đại lý AI VN168',
+    'title' => 'Hệ thống Matrix MLM',
     'nav' => [
         'dashboard' => 'Tổng quan',
         'config' => 'Cấu hình MLM',

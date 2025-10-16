@@ -48,7 +48,7 @@
                 @else
                     <div class="text-center py-12">
                         <h2 class="text-3xl font-bold text-gray-900 mb-4">Chào mừng đến với {{ __('ui.title') }}</h2>
-                        <p class="text-lg text-gray-600 mb-8">Hệ thống quản lý đại lý AI VN168 - Quản lý ma trận, đơn hàng và hoa hồng</p>
+                        <p class="text-lg text-gray-600 mb-8">Hệ thống quản lý ma trận MLM hiện đại</p>
                         <div class="space-x-4">
                             <a href="{{ route('login') }}" class="inline-flex items-center px-6 py-3 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 {{ __('ui.auth.login') }}
