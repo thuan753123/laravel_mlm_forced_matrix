@@ -41,12 +41,14 @@
    ============================================ */
 #sidebar {
     width: var(--sidebar-width-expanded);
+    height: 100vh;
     background-color: var(--sidebar-bg);
     color: white;
     display: flex;
     flex-direction: column;
     transition: var(--sidebar-transition);
-    position: relative;
+    position: sticky;
+    top: 0;
     z-index: var(--sidebar-z-index);
     box-shadow: var(--sidebar-shadow);
 }
@@ -66,6 +68,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
 }
 
 .sidebar-header a {
@@ -410,6 +413,8 @@ nav.space-y-2 > * + * {
 .sidebar-footer {
     padding: 1rem;
     border-top: 1px solid var(--sidebar-border);
+    flex-shrink: 0;
+    margin-top: auto;
 }
 
 .sidebar-user {
