@@ -298,3 +298,4 @@ local.properties
 !.gitkeep
 !.htaccess
 !web.config
+.env

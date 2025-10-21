@@ -6,6 +6,7 @@ use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\MatrixController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CommissionController;
+use App\Http\Controllers\DiscountController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +72,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/history', [CommissionController::class, 'history'])->name('commissions.history');
     });
     
+    // Discount routes (Member - View only)
+    Route::prefix('discounts')->name('discounts.')->group(function () {
+        Route::get('/', [DiscountController::class, 'memberIndex'])->name('index');
+        Route::get('/my-discount', [DiscountController::class, 'myDiscount'])->name('my-discount');
+        Route::get('/calculator', [DiscountController::class, 'memberCalculator'])->name('calculator');
+        Route::post('/calculate', [DiscountController::class, 'calculate'])->name('calculate');
+    });
+    
     // Admin routes
     Route::middleware(['admin'])->prefix('admin')->group(function () {
         // MLM Config
@@ -98,6 +107,20 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{id}/edit', [\App\Http\Controllers\Admin\CommissionPolicyController::class, 'edit'])->name('edit');
             Route::put('/{id}', [\App\Http\Controllers\Admin\CommissionPolicyController::class, 'update'])->name('update');
             Route::delete('/{id}', [\App\Http\Controllers\Admin\CommissionPolicyController::class, 'destroy'])->name('destroy');
+        });
+
+        // Discount Tiers Management (Admin - Full CRUD)
+        Route::prefix('discounts')->name('admin.discounts.')->group(function () {
+            Route::get('/', [DiscountController::class, 'index'])->name('index');
+            Route::get('/create', [DiscountController::class, 'create'])->name('create');
+            Route::post('/', [DiscountController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [DiscountController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [DiscountController::class, 'update'])->name('update');
+            Route::delete('/{id}', [DiscountController::class, 'destroy'])->name('destroy');
+            Route::get('/calculator', [DiscountController::class, 'calculator'])->name('calculator');
+            Route::post('/calculate', [DiscountController::class, 'calculate'])->name('calculate');
+            Route::get('/tiers', [DiscountController::class, 'getTiers'])->name('tiers');
+            Route::get('/examples', [DiscountController::class, 'examples'])->name('examples');
         });
     });
     

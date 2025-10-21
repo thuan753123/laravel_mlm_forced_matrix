@@ -29,5 +29,8 @@ class DatabaseSeeder extends Seeder
 
         // Seed matrix sample data
         $this->call(MatrixSeeder::class);
+        
+        // Seed discount tiers
+        $this->call(DiscountTierSeeder::class);
     }
 }

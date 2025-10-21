@@ -1,0 +1,61 @@
+# Laravel MLM Project - Root .gitignore
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+.cache/
+
+# Node modules (if any in root)
+node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+
+# Documentation temporary files
+*.md~
+*.txt~
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Misc
+.todo
+TODO.md
+notes.md
+scratch/
+

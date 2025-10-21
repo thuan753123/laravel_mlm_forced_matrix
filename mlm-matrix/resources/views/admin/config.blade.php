@@ -2,509 +2,310 @@
 
 @section('title', 'Cấu hình MLM')
 
-@push('styles')
-<style>
-    .config-container {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        padding: 20px 0;
-    }
-
-    .main-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-    }
-
-    .card-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 25px 30px;
-    }
-
-    .section-card {
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        border: none;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        margin-bottom: 25px;
-    }
-
-    .section-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-    }
-
-    .section-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px 25px;
-        margin: 0;
-        border-radius: 15px 15px 0 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .section-body {
-        padding: 30px;
-    }
-
-    .form-group {
-        margin-bottom: 25px;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 8px;
-        font-size: 0.95rem;
-    }
-
-    .form-control {
-        border: 2px solid #e1e8ed;
-        border-radius: 10px;
-        padding: 12px 18px;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-        background: #f8f9fa;
-    }
-
-    .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        background: white;
-    }
-
-    .form-control:hover {
-        border-color: #667eea;
-    }
-
-    .input-group-text {
-        background: #667eea;
-        color: white;
-        border: none;
-        border-radius: 10px 0 0 10px;
-        font-weight: 600;
-    }
-
-    .btn {
-        border-radius: 10px;
-        font-weight: 600;
-        padding: 12px 25px;
-        transition: all 0.3s ease;
-        border: none;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-secondary {
-        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-    }
-
-    .btn-secondary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
-    }
-
-    .btn-danger {
-        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-    }
-
-    .btn-sm {
-        padding: 8px 16px;
-        font-size: 0.85rem;
-    }
-
-    .commission-level {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 15px;
-        border: 2px solid #e1e8ed;
-        transition: all 0.3s ease;
-    }
-
-    .commission-level:hover {
-        border-color: #667eea;
-        background: linear-gradient(135deg, #f0f2ff 0%, #e3e7ff 100%);
-    }
-
-    .add-commission-btn {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 10px 20px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-    }
-
-    .add-commission-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
-    }
-
-    .form-text {
-        color: #6c757d;
-        font-size: 0.85rem;
-        margin-top: 5px;
-    }
-
-    .form-check-input:checked {
-        background-color: #667eea;
-        border-color: #667eea;
-    }
-
-    .form-check-label {
-        font-weight: 500;
-        color: #2c3e50;
-    }
-
-    .action-buttons {
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        margin-top: 20px;
-    }
-
-    .loading-modal .modal-content {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        border: none;
-    }
-
-    .loading-spinner {
-        color: #667eea;
-    }
-
-    .success-message {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        padding: 15px 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-    }
-
-    .error-message {
-        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-        color: white;
-        padding: 15px 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-    }
-
-    .info-box {
-        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-        color: white;
-        padding: 15px 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
-    }
-
-    @media (max-width: 768px) {
-        .config-container {
-            padding: 10px 0;
-        }
-
-        .section-body {
-            padding: 20px;
-        }
-
-        .card-header {
-            padding: 20px;
-        }
-
-        .section-header {
-            padding: 15px 20px;
-            font-size: 1rem;
-        }
-    }
-</style>
-@endpush
-
 @section('content')
-<div class="config-container">
-    <div class="container-fluid">
-        <!-- Alert Messages -->
-        @if(session('success'))
-        <div class="row">
-            <div class="col-12">
-                <div class="success-message">
-                    <i class="fas fa-check-circle"></i> {{ session('success') }}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 lg:p-8">
+    <!-- Header Section -->
+    <div class="max-w-7xl mx-auto mb-8">
+        <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                        <i class="fas fa-cog text-blue-600 mr-3"></i>Cấu hình Hệ thống MLM
+                    </h1>
+                    <p class="text-gray-600">Quản lý các thông số và quy tắc của hệ thống đa cấp</p>
                 </div>
-            </div>
-        </div>
-        @endif
-
-        @if(session('error'))
-        <div class="row">
-            <div class="col-12">
-                <div class="error-message">
-                    <i class="fas fa-exclamation-triangle"></i> {{ session('error') }}
-                </div>
-            </div>
-        </div>
-        @endif
-
-        <div class="row justify-content-center">
-            <div class="col-lg-11">
-                <div class="main-card">
-                    <div class="card-header">
-                        <h2 class="mb-0">
-                            <i class="fas fa-cog"></i> Cấu hình Hệ thống MLM
-                        </h2>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-light btn-sm" onclick="resetConfig()" style="background: rgba(255,255,255,0.2); color: white; border: none;">
-                                <i class="fas fa-undo"></i> Đặt lại mặc định
-                            </button>
-                        </div>
-                    </div>
-
-                    <form id="configForm">
-                        <div class="card-body">
-                            <div class="row">
-                                <!-- Matrix Configuration -->
-                                <div class="col-lg-6">
-                                    <div class="section-card">
-                                        <h4 class="section-header">
-                                            <i class="fas fa-project-diagram"></i> Cấu hình Ma trận
-                                        </h4>
-                                        <div class="section-body">
-                                            <div class="form-group">
-                                                <label for="width" class="form-label">
-                                                    <i class="fas fa-arrows-alt-h"></i> Độ rộng ma trận
-                                                </label>
-                                                <input type="number" class="form-control" id="width" name="width" min="1" max="10" required>
-                                                <small class="form-text">
-                                                    <i class="fas fa-info-circle"></i> Số vị trí trực tiếp tối đa (1-10)
-                                                </small>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="max_depth" class="form-label">
-                                                    <i class="fas fa-layer-group"></i> Độ sâu tối đa
-                                                </label>
-                                                <input type="number" class="form-control" id="max_depth" name="max_depth" min="1" max="20" required>
-                                                <small class="form-text">
-                                                    <i class="fas fa-info-circle"></i> Số tầng tối đa trong ma trận (1-20)
-                                                </small>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="placement_mode" class="form-label">
-                                                    <i class="fas fa-map-marker-alt"></i> Chế độ đặt vị trí
-                                                </label>
-                                                <select class="form-control" id="placement_mode" name="placement_mode" required>
-                                                    <option value="forced">Ép buộc</option>
-                                                    <option value="auto">Tự động</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="spillover_mode" class="form-label">
-                                                    <i class="fas fa-sitemap"></i> Chế độ spillover
-                                                </label>
-                                                <select class="form-control" id="spillover_mode" name="spillover_mode" required>
-                                                    <option value="bfs">Breadth First (BFS)</option>
-                                                    <option value="balanced">Cân bằng</option>
-                                                    <option value="leftmost">Trái nhất</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Commission Configuration -->
-                                <div class="col-lg-6">
-                                    <div class="section-card">
-                                        <h4 class="section-header">
-                                            <i class="fas fa-coins"></i> Cấu hình Hoa hồng
-                                        </h4>
-                                        <div class="section-body">
-                                            <div class="form-group">
-                                                <label for="capping_per_cycle" class="form-label">
-                                                    <i class="fas fa-money-bill-wave"></i> Giới hạn hoa hồng mỗi chu kỳ
-                                                </label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text">$</span>
-                                                    </div>
-                                                    <input type="number" class="form-control" id="capping_per_cycle" name="capping_per_cycle" min="0" step="0.01" required>
-                                                </div>
-                                                <small class="form-text">
-                                                    <i class="fas fa-info-circle"></i> Giới hạn hoa hồng tối đa mỗi chu kỳ
-                                                </small>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="cycle_period" class="form-label">
-                                                    <i class="fas fa-calendar-alt"></i> Chu kỳ hoa hồng
-                                                </label>
-                                                <select class="form-control" id="cycle_period" name="cycle_period" required>
-                                                    <option value="daily">Hàng ngày</option>
-                                                    <option value="weekly">Hàng tuần</option>
-                                                    <option value="monthly">Hàng tháng</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label class="form-label">
-                                                    <i class="fas fa-percentage"></i> Hoa hồng theo tầng (%)
-                                                </label>
-                                                <div id="commissionLevels">
-                                                    <!-- Commission levels will be dynamically added here -->
-                                                </div>
-                                                <button type="button" class="add-commission-btn" onclick="addCommissionLevel()">
-                                                    <i class="fas fa-plus"></i> Thêm tầng hoa hồng
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Qualification Rules -->
-                            <div class="col-12">
-                                <div class="section-card">
-                                    <h4 class="section-header">
-                                        <i class="fas fa-clipboard-check"></i> Quy tắc đủ điều kiện
-                                    </h4>
-                                    <div class="section-body">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label for="min_personal_volume" class="form-label">
-                                                        <i class="fas fa-chart-line"></i> Khối lượng cá nhân tối thiểu
-                                                    </label>
-                                                    <div class="input-group">
-                                                        <input type="number" class="form-control" id="min_personal_volume" name="min_personal_volume" min="0" step="0.01">
-                                                        <div class="input-group-append">
-                                                            <span class="input-group-text">PV</span>
-                                                        </div>
-                                                    </div>
-                                                    <small class="form-text">
-                                                        <i class="fas fa-info-circle"></i> Khối lượng mua hàng tối thiểu để đủ điều kiện
-                                                    </small>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label for="active_order_days" class="form-label">
-                                                        <i class="fas fa-clock"></i> Số ngày đơn hàng hoạt động
-                                                    </label>
-                                                    <div class="input-group">
-                                                        <input type="number" class="form-control" id="active_order_days" name="active_order_days" min="1" max="365">
-                                                        <div class="input-group-append">
-                                                            <span class="input-group-text">ngày</span>
-                                                        </div>
-                                                    </div>
-                                                    <small class="form-text">
-                                                        <i class="fas fa-info-circle"></i> Số ngày đơn hàng phải hoạt động để đủ điều kiện
-                                                    </small>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <div class="form-check mt-4">
-                                                        <input type="checkbox" class="form-check-input" id="kyc_required" name="kyc_required" style="transform: scale(1.2);">
-                                                        <label class="form-check-label" for="kyc_required" style="font-weight: 600; color: #2c3e50; margin-left: 10px;">
-                                                            <i class="fas fa-user-check"></i> Yêu cầu KYC
-                                                        </label>
-                                                    </div>
-                                                    <small class="form-text">
-                                                        <i class="fas fa-info-circle"></i> Bật xác thực danh tính để đủ điều kiện hoa hồng
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="col-12">
-                                <div class="action-buttons">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <button type="submit" class="btn btn-primary btn-lg btn-block">
-                                                <i class="fas fa-save"></i> Lưu cấu hình
-                                            </button>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <button type="button" class="btn btn-secondary btn-lg btn-block" onclick="loadCurrentConfig()">
-                                                <i class="fas fa-refresh"></i> Tải lại cấu hình
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                <button type="button" 
+                        onclick="resetConfig()"
+                        class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+                    <i class="fas fa-undo mr-2"></i>
+                    Đặt lại mặc định
+                </button>
             </div>
         </div>
     </div>
+
+    <!-- Alert Messages -->
+    @if(session('success'))
+    <div class="max-w-7xl mx-auto mb-6">
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 rounded-lg shadow">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
+                <p class="text-green-800 font-medium">{{ session('success') }}</p>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="max-w-7xl mx-auto mb-6">
+        <div class="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 p-4 rounded-lg shadow">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl mr-3"></i>
+                <p class="text-red-800 font-medium">{{ session('error') }}</p>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Main Form -->
+    <form id="configForm" class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Matrix Configuration -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="px-6 py-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
+                    <h2 class="text-xl font-bold text-gray-900">
+                        <i class="fas fa-project-diagram text-blue-600 mr-2"></i>Cấu hình Ma trận
+                    </h2>
+                </div>
+                <div class="p-6 space-y-6">
+                    <!-- Width -->
+                    <div>
+                        <label for="width" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-arrows-alt-h text-blue-500 mr-2"></i>Độ rộng ma trận
+                        </label>
+                        <input type="number" 
+                               id="width" 
+                               name="width" 
+                               min="1" 
+                               max="10" 
+                               class="block w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
+                               required>
+                        <p class="mt-2 text-sm text-gray-600">
+                            <i class="fas fa-info-circle mr-1"></i>Số vị trí trực tiếp tối đa (1-10)
+                        </p>
+                    </div>
+
+                    <!-- Max Depth -->
+                    <div>
+                        <label for="max_depth" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-layer-group text-blue-500 mr-2"></i>Độ sâu tối đa
+                        </label>
+                        <input type="number" 
+                               id="max_depth" 
+                               name="max_depth" 
+                               min="1" 
+                               max="20" 
+                               class="block w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
+                               required>
+                        <p class="mt-2 text-sm text-gray-600">
+                            <i class="fas fa-info-circle mr-1"></i>Số tầng tối đa trong ma trận (1-20)
+                        </p>
+                    </div>
+
+                    <!-- Placement Mode -->
+                    <div>
+                        <label for="placement_mode" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>Chế độ đặt vị trí
+                        </label>
+                        <select id="placement_mode" 
+                                name="placement_mode" 
+                                class="block w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
+                                required>
+                            <option value="forced">Ép buộc</option>
+                            <option value="auto">Tự động</option>
+                        </select>
+                    </div>
+
+                    <!-- Spillover Mode -->
+                    <div>
+                        <label for="spillover_mode" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-sitemap text-blue-500 mr-2"></i>Chế độ spillover
+                        </label>
+                        <select id="spillover_mode" 
+                                name="spillover_mode" 
+                                class="block w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
+                                required>
+                            <option value="bfs">Breadth First (BFS)</option>
+                            <option value="balanced">Cân bằng</option>
+                            <option value="leftmost">Trái nhất</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Commission Configuration -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200">
+                    <h2 class="text-xl font-bold text-gray-900">
+                        <i class="fas fa-coins text-green-600 mr-2"></i>Cấu hình Hoa hồng
+                    </h2>
+                </div>
+                <div class="p-6 space-y-6">
+                    <!-- Capping Per Cycle -->
+                    <div>
+                        <label for="capping_per_cycle" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-money-bill-wave text-green-500 mr-2"></i>Giới hạn hoa hồng mỗi chu kỳ
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <span class="text-gray-500 font-semibold">$</span>
+                            </div>
+                            <input type="number" 
+                                   id="capping_per_cycle" 
+                                   name="capping_per_cycle" 
+                                   min="0" 
+                                   step="0.01"
+                                   class="block w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-200"
+                                   required>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600">
+                            <i class="fas fa-info-circle mr-1"></i>Giới hạn hoa hồng tối đa mỗi chu kỳ
+                        </p>
+                    </div>
+
+                    <!-- Cycle Period -->
+                    <div>
+                        <label for="cycle_period" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar-alt text-green-500 mr-2"></i>Chu kỳ hoa hồng
+                        </label>
+                        <select id="cycle_period" 
+                                name="cycle_period" 
+                                class="block w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-200"
+                                required>
+                            <option value="daily">Hàng ngày</option>
+                            <option value="weekly">Hàng tuần</option>
+                            <option value="monthly">Hàng tháng</option>
+                        </select>
+                    </div>
+
+                    <!-- Commission Levels -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                            <i class="fas fa-percentage text-green-500 mr-2"></i>Hoa hồng theo tầng (%)
+                        </label>
+                        <div id="commissionLevels" class="space-y-3">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                        <button type="button" 
+                                onclick="addCommissionLevel()"
+                                class="mt-4 w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+                            <i class="fas fa-plus mr-2"></i>
+                            Thêm tầng hoa hồng
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Qualification Rules -->
+        <div class="max-w-7xl mx-auto mb-8">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="px-6 py-5 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-200">
+                    <h2 class="text-xl font-bold text-gray-900">
+                        <i class="fas fa-clipboard-check text-purple-600 mr-2"></i>Quy tắc đủ điều kiện
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Min Personal Volume -->
+                        <div>
+                            <label for="min_personal_volume" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-chart-line text-purple-500 mr-2"></i>Khối lượng cá nhân tối thiểu
+                            </label>
+                            <div class="relative">
+                                <input type="number" 
+                                       id="min_personal_volume" 
+                                       name="min_personal_volume" 
+                                       min="0" 
+                                       step="0.01"
+                                       class="block w-full pr-14 px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all duration-200">
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 font-semibold text-sm">PV</span>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-600">
+                                <i class="fas fa-info-circle mr-1"></i>Khối lượng mua hàng tối thiểu
+                            </p>
+                        </div>
+
+                        <!-- Active Order Days -->
+                        <div>
+                            <label for="active_order_days" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-clock text-purple-500 mr-2"></i>Số ngày đơn hàng hoạt động
+                            </label>
+                            <div class="relative">
+                                <input type="number" 
+                                       id="active_order_days" 
+                                       name="active_order_days" 
+                                       min="1" 
+                                       max="365"
+                                       class="block w-full pr-20 px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all duration-200">
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 font-semibold text-sm">ngày</span>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-600">
+                                <i class="fas fa-info-circle mr-1"></i>Số ngày đơn hàng phải hoạt động
+                            </p>
+                        </div>
+
+                        <!-- KYC Required -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-user-check text-purple-500 mr-2"></i>Yêu cầu xác thực
+                            </label>
+                            <div class="flex items-center h-12 px-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-50">
+                                <input type="checkbox" 
+                                       id="kyc_required" 
+                                       name="kyc_required"
+                                       class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 focus:ring-4 cursor-pointer">
+                                <label for="kyc_required" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                                    Yêu cầu KYC
+                                </label>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-600">
+                                <i class="fas fa-info-circle mr-1"></i>Bật xác thực danh tính
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button type="submit" 
+                            class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+                        <i class="fas fa-save mr-2"></i>
+                        Lưu cấu hình
+                    </button>
+                    <button type="button" 
+                            onclick="loadCurrentConfig()"
+                            class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+                        <i class="fas fa-refresh mr-2"></i>
+                        Tải lại cấu hình
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
-<!-- Enhanced Loading Modal -->
-<div class="modal fade" id="loadingModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content loading-modal">
-            <div class="modal-body text-center">
-                <div class="loading-spinner">
-                    <i class="fas fa-spinner fa-spin fa-3x mb-3"></i>
-                </div>
-                <h5 class="mb-0">Đang xử lý...</h5>
-                <p class="text-muted mt-2">Vui lòng đợi trong giây lát</p>
-            </div>
+<!-- Loading Modal -->
+<div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm mx-4">
+        <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-blue-600 text-5xl mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Đang xử lý...</h3>
+            <p class="text-gray-600">Vui lòng đợi trong giây lát</p>
         </div>
     </div>
 </div>
 @endsection
 
 @push('scripts')
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- jQuery (if not already included) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
-let commissionLevelCount = 1;
+let commissionLevelCount = 0;
 
 $(document).ready(function() {
     loadCurrentConfig();
-    initializeCommissionLevels();
-
-    // Add smooth animations
-    $('.section-card').addClass('animate__animated animate__fadeInUp');
-
-    // Form validation enhancement
-    $('input, select').on('focus', function() {
-        $(this).closest('.form-group').addClass('focused');
-    }).on('blur', function() {
-        $(this).closest('.form-group').removeClass('focused');
-    });
 });
 
 function loadCurrentConfig() {
@@ -520,12 +321,6 @@ function loadCurrentConfig() {
         success: function(response) {
             hideLoading();
             populateForm(response.config);
-
-            // Animate form population
-            $('.form-control, .form-check-input').addClass('animate__animated animate__pulse');
-            setTimeout(() => {
-                $('.form-control, .form-check-input').removeClass('animate__animated animate__pulse');
-            }, 1000);
         },
         error: function(xhr) {
             hideLoading();
@@ -546,55 +341,55 @@ function loadCurrentConfig() {
 }
 
 function populateForm(config) {
-    // Animate form clearing
-    $('.form-control').addClass('animate__animated animate__fadeOut');
-    $('.form-check-input').addClass('animate__animated animate__fadeOut');
+    $('#width').val(config.width || 10);
+    $('#max_depth').val(config.max_depth || 1);
+    $('#placement_mode').val(config.placement_mode || 'forced');
+    $('#spillover_mode').val(config.spillover_mode || 'bfs');
+    $('#capping_per_cycle').val(config.capping_per_cycle || 10000000);
+    $('#cycle_period').val(config.cycle_period || 'weekly');
+    $('#min_personal_volume').val(config.min_personal_volume || 0);
+    $('#active_order_days').val(config.active_order_days || 30);
+    $('#kyc_required').prop('checked', config.kyc_required || false);
 
-    setTimeout(() => {
-        $('#width').val(config.width || 10);
-        $('#max_depth').val(config.max_depth || 1);
-        $('#placement_mode').val(config.placement_mode || 'forced');
-        $('#spillover_mode').val(config.spillover_mode || 'bfs');
-        $('#capping_per_cycle').val(config.capping_per_cycle || 10000000);
-        $('#cycle_period').val(config.cycle_period || 'weekly');
-        $('#min_personal_volume').val(config.min_personal_volume || 0);
-        $('#active_order_days').val(config.active_order_days || 30);
-        $('#kyc_required').prop('checked', config.kyc_required || false);
-
-        // Populate commission levels
-        if (config.commissions) {
-            $('#commissionLevels').empty();
-            commissionLevelCount = 0;
-            Object.keys(config.commissions).forEach(level => {
-                addCommissionLevel(config.commissions[level]);
-            });
-        }
-
-        // Animate form population
-        $('.form-control, .form-check-input').removeClass('animate__animated animate__fadeOut').addClass('animate__animated animate__fadeIn');
-        setTimeout(() => {
-            $('.form-control, .form-check-input').removeClass('animate__animated animate__fadeIn');
-        }, 500);
-    }, 300);
+    // Populate commission levels
+    if (config.commissions) {
+        $('#commissionLevels').empty();
+        commissionLevelCount = 0;
+        Object.keys(config.commissions).forEach(level => {
+            addCommissionLevel(config.commissions[level] * 100); // Convert to percentage
+        });
+    }
 }
 
-function addCommissionLevel(value = 0.1) {
+function addCommissionLevel(value = 10) {
     commissionLevelCount++;
     const levelHtml = `
-        <div class="commission-level animate__animated animate__fadeInUp" id="level-${commissionLevelCount}">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">
-                        <i class="fas fa-layer-group"></i> Tầng ${commissionLevelCount}
+        <div class="commission-level" id="level-${commissionLevelCount}">
+            <div class="flex items-center gap-3">
+                <div class="flex-shrink-0 w-24">
+                    <span class="inline-flex items-center px-3 py-2 bg-green-100 text-green-800 text-sm font-semibold rounded-lg">
+                        <i class="fas fa-layer-group mr-2"></i>Tầng ${commissionLevelCount}
                     </span>
                 </div>
-                <input type="number" class="form-control" name="commissions[${commissionLevelCount}]" value="${value}" min="0" max="1" step="0.01" placeholder="Nhập tỷ lệ hoa hồng..." required>
-                <div class="input-group-append">
-                    <span class="input-group-text">%</span>
-                    <button class="btn btn-danger" type="button" onclick="removeCommissionLevel(${commissionLevelCount})" title="Xóa tầng này">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                <div class="flex-1 relative">
+                    <input type="number" 
+                           name="commissions[${commissionLevelCount}]" 
+                           value="${value}" 
+                           min="0" 
+                           max="100" 
+                           step="0.01"
+                           placeholder="Nhập tỷ lệ..." 
+                           class="block w-full pr-14 px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-200"
+                           required>
+                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                        <span class="text-gray-500 font-semibold text-sm">%</span>
+                    </div>
                 </div>
+                <button type="button" 
+                        onclick="removeCommissionLevel(${commissionLevelCount})"
+                        class="flex-shrink-0 p-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors duration-200">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     `;
@@ -602,43 +397,22 @@ function addCommissionLevel(value = 0.1) {
 }
 
 function removeCommissionLevel(level) {
-    $(`#level-${level}`).addClass('animate__animated animate__fadeOutLeft');
-    setTimeout(() => {
-        $(`#level-${level}`).remove();
-    }, 300);
-}
-
-function initializeCommissionLevels() {
-    // Add initial level if none exist
-    if ($('#commissionLevels').children().length === 0) {
-        addCommissionLevel();
-    }
+    $(`#level-${level}`).fadeOut(300, function() {
+        $(this).remove();
+    });
 }
 
 function resetConfig() {
     Swal.fire({
         title: 'Đặt lại cấu hình mặc định?',
-        html: `
-            <p class="text-muted">Tất cả các thay đổi hiện tại sẽ bị mất và hệ thống sẽ trở về cấu hình ban đầu.</p>
-            <div class="text-left mt-3">
-                <small class="text-warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Lưu ý: Hành động này không thể hoàn tác.
-                </small>
-            </div>
-        `,
+        html: '<p class="text-gray-600">Tất cả các thay đổi hiện tại sẽ bị mất và hệ thống sẽ trở về cấu hình ban đầu.</p>',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc3545',
         cancelButtonColor: '#6c757d',
-        confirmButtonText: '<i class="fas fa-undo"></i> Đặt lại',
-        cancelButtonText: '<i class="fas fa-times"></i> Hủy',
-        reverseButtons: true,
-        customClass: {
-            popup: 'animate__animated animate__zoomIn',
-            confirmButton: 'animate__animated animate__pulse',
-            cancelButton: 'animate__animated animate__pulse'
-        }
+        confirmButtonText: '<i class="fas fa-undo mr-2"></i> Đặt lại',
+        cancelButtonText: '<i class="fas fa-times mr-2"></i> Hủy',
+        reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
             showLoading();
@@ -648,22 +422,18 @@ function resetConfig() {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
                     hideLoading();
                     populateForm(response.config);
-
                     Swal.fire({
                         icon: 'success',
                         title: 'Đặt lại thành công!',
-                        html: 'Cấu hình đã được đặt lại về mặc định.',
-                        timer: 3000,
-                        timerProgressBar: true,
-                        showConfirmButton: false,
-                        customClass: {
-                            popup: 'animate__animated animate__bounceIn'
-                        }
+                        text: 'Cấu hình đã được đặt lại về mặc định.',
+                        timer: 2000,
+                        showConfirmButton: false
                     });
                 },
                 error: function(xhr) {
@@ -671,8 +441,7 @@ function resetConfig() {
                     Swal.fire({
                         icon: 'error',
                         title: 'Không thể đặt lại cấu hình',
-                        text: 'Có lỗi xảy ra trong quá trình đặt lại. Vui lòng thử lại.',
-                        confirmButtonText: 'Thử lại'
+                        text: 'Có lỗi xảy ra trong quá trình đặt lại. Vui lòng thử lại.'
                     });
                 }
             });
@@ -683,40 +452,25 @@ function resetConfig() {
 $('#configForm').on('submit', function(e) {
     e.preventDefault();
 
-    // Validate form before submission
-    const form = this;
-    if (!form.checkValidity()) {
-        form.classList.add('was-validated');
-        Swal.fire({
-            icon: 'warning',
-            title: 'Thông tin chưa đầy đủ',
-            text: 'Vui lòng điền đầy đủ thông tin bắt buộc.',
-            confirmButtonText: 'Đã hiểu'
-        });
-        return;
-    }
-
     const formData = new FormData(this);
     const configData = {};
 
-    // Collect form data with better error handling
+    // Collect form data
     for (let [key, value] of formData.entries()) {
         if (key.startsWith('commissions[')) {
-            // Handle commission levels
             const levelMatch = key.match(/commissions\[(\d+)\]/);
             if (levelMatch) {
                 if (!configData.commissions) configData.commissions = {};
-                const numValue = parseFloat(value);
-                if (isNaN(numValue) || numValue < 0 || numValue > 1) {
+                const percentValue = parseFloat(value);
+                if (isNaN(percentValue) || percentValue < 0 || percentValue > 100) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Dữ liệu không hợp lệ',
-                        text: `Tỷ lệ hoa hồng tầng ${levelMatch[1]} phải từ 0 đến 1.`,
-                        confirmButtonText: 'Sửa lại'
+                        text: `Tỷ lệ hoa hồng tầng ${levelMatch[1]} phải từ 0 đến 100%.`
                     });
                     return;
                 }
-                configData.commissions[levelMatch[1]] = numValue;
+                configData.commissions[levelMatch[1]] = percentValue / 100; // Convert to decimal
             }
         } else {
             const numValue = parseFloat(value);
@@ -727,28 +481,25 @@ $('#configForm').on('submit', function(e) {
     // Handle checkbox
     configData.kyc_required = $('#kyc_required').is(':checked');
 
-    // Show confirmation before saving
+    // Show confirmation
     Swal.fire({
         title: 'Xác nhận lưu cấu hình?',
         html: `
-            <div class="text-left">
-                <p class="mb-2"><strong>Cấu hình sẽ được áp dụng:</strong></p>
-                <ul class="list-unstyled">
-                    <li><i class="fas fa-check text-success"></i> Độ rộng ma trận: ${configData.width}</li>
-                    <li><i class="fas fa-check text-success"></i> Độ sâu tối đa: ${configData.max_depth}</li>
-                    <li><i class="fas fa-check text-success"></i> Giới hạn hoa hồng: $${configData.capping_per_cycle}</li>
-                    <li><i class="fas fa-check text-success"></i> Tầng hoa hồng: ${Object.keys(configData.commissions || {}).length}</li>
+            <div class="text-left p-4">
+                <p class="mb-3 font-semibold">Cấu hình sẽ được áp dụng:</p>
+                <ul class="space-y-2 text-sm">
+                    <li><i class="fas fa-check text-green-500 mr-2"></i>Độ rộng ma trận: <strong>${configData.width}</strong></li>
+                    <li><i class="fas fa-check text-green-500 mr-2"></i>Độ sâu tối đa: <strong>${configData.max_depth}</strong></li>
+                    <li><i class="fas fa-check text-green-500 mr-2"></i>Giới hạn hoa hồng: <strong>$${configData.capping_per_cycle}</strong></li>
+                    <li><i class="fas fa-check text-green-500 mr-2"></i>Tầng hoa hồng: <strong>${Object.keys(configData.commissions || {}).length}</strong></li>
                 </ul>
             </div>
         `,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: '<i class="fas fa-save"></i> Lưu cấu hình',
-        cancelButtonText: '<i class="fas fa-times"></i> Hủy',
-        confirmButtonColor: '#28a745',
-        customClass: {
-            popup: 'animate__animated animate__zoomIn'
-        }
+        confirmButtonText: '<i class="fas fa-save mr-2"></i> Lưu cấu hình',
+        cancelButtonText: '<i class="fas fa-times mr-2"></i> Hủy',
+        confirmButtonColor: '#3b82f6'
     }).then((result) => {
         if (result.isConfirmed) {
             performSave(configData);
@@ -766,30 +517,18 @@ function performSave(configData) {
         contentType: 'application/json',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
         success: function(response) {
             hideLoading();
-
-            // Show success animation
             Swal.fire({
                 icon: 'success',
                 title: 'Lưu thành công!',
-                html: `
-                    <div class="animate__animated animate__bounceIn">
-                        <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
-                        <p>Cấu hình đã được cập nhật và áp dụng cho hệ thống.</p>
-                    </div>
-                `,
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                customClass: {
-                    popup: 'animate__animated animate__zoomIn'
-                }
+                text: 'Cấu hình đã được cập nhật và áp dụng cho hệ thống.',
+                timer: 2000,
+                showConfirmButton: false
             });
-
-            // Refresh form data
             setTimeout(() => {
                 loadCurrentConfig();
             }, 2000);
@@ -799,33 +538,22 @@ function performSave(configData) {
             const error = xhr.responseJSON;
 
             if (error && error.errors) {
-                let errorMessage = '<div class="text-left"><p class="mb-2"><strong>Vui lòng kiểm tra lại:</strong></p><ul class="list-unstyled">';
+                let errorMessage = '<div class="text-left p-4"><p class="mb-2 font-semibold">Vui lòng kiểm tra lại:</p><ul class="space-y-1 text-sm">';
                 Object.values(error.errors).forEach(errors => {
-                    errors.forEach(error => errorMessage += `<li><i class="fas fa-exclamation-triangle text-warning"></i> ${error}</li>`);
+                    errors.forEach(error => errorMessage += `<li><i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>${error}</li>`);
                 });
                 errorMessage += '</ul></div>';
 
                 Swal.fire({
                     icon: 'error',
                     title: 'Thông tin không hợp lệ',
-                    html: errorMessage,
-                    confirmButtonText: 'Sửa lại',
-                    customClass: {
-                        popup: 'animate__animated animate__shakeX'
-                    }
+                    html: errorMessage
                 });
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Không thể lưu cấu hình',
-                    text: 'Có lỗi xảy ra trong quá trình lưu. Vui lòng thử lại.',
-                    confirmButtonText: 'Thử lại',
-                    showCancelButton: true,
-                    cancelButtonText: 'Hủy'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        performSave(configData);
-                    }
+                    text: 'Có lỗi xảy ra trong quá trình lưu. Vui lòng thử lại.'
                 });
             }
         }
@@ -833,40 +561,11 @@ function performSave(configData) {
 }
 
 function showLoading() {
-    $('#loadingModal').modal({
-        backdrop: 'static',
-        keyboard: false
-    }).modal('show');
+    document.getElementById('loadingModal').classList.remove('hidden');
 }
 
 function hideLoading() {
-    $('#loadingModal').modal('hide');
+    document.getElementById('loadingModal').classList.add('hidden');
 }
-
-// Enhanced tooltips
-$(function () {
-    $('[data-toggle="tooltip"]').tooltip();
-});
-
-// Auto-save draft (optional feature)
-let autoSaveTimer;
-function enableAutoSave() {
-    clearTimeout(autoSaveTimer);
-    autoSaveTimer = setTimeout(() => {
-        console.log('Auto-saving draft...');
-        // Implement auto-save logic here if needed
-    }, 30000); // Auto-save every 30 seconds
-}
-
-// Enable auto-save when form changes
-$('#configForm').on('input change', 'input, select, textarea', function() {
-    enableAutoSave();
-});
 </script>
-
-<!-- SweetAlert2 CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
-
-<!-- Animate.css for animations -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 @endpush

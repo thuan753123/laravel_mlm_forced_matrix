@@ -95,12 +95,33 @@
                         </svg>
                         <span>{{ __('ui.nav.orders') }}</span>
                     </a>
-                    <a href="{{ route('commissions.index') }}" class="sidebar-link {{ request()->routeIs('commissions.*') ? 'active' : '' }}" data-tooltip="{{ __('ui.nav.commissions') }}">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                        </svg>
-                        <span>{{ __('ui.nav.commissions') }}</span>
-                    </a>
+                    
+                    <!-- Discount Dropdown -->
+                    <div class="sidebar-dropdown {{ request()->routeIs('discounts.*') && !request()->routeIs('admin.discounts.*') ? 'active' : '' }}">
+                        <button type="button" class="sidebar-dropdown-toggle" data-tooltip="Chiết khấu" onclick="toggleDiscountDropdown()">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                            <span>Chiết khấu</span>
+                            <svg class="sidebar-dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="sidebar-dropdown-menu {{ request()->routeIs('discounts.*') && !request()->routeIs('admin.discounts.*') ? 'show' : '' }}" id="discountDropdownMenu">
+                            <a href="{{ route('discounts.index') }}" class="sidebar-dropdown-item {{ request()->routeIs('discounts.calculator') ? 'active' : '' }}">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                                <span>Thông tin & Máy tính</span>
+                            </a>
+                            <a href="{{ route('discounts.my-discount') }}" class="sidebar-dropdown-item {{ request()->routeIs('discounts.my-discount') ? 'active' : '' }}">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                <span>Chiết khấu của tôi</span>
+                            </a>
+                        </div>
+                    </div>
                     @if(auth()->user()->canAccessAdmin())
                         <!-- Admin Menu with Submenu -->
                         <div class="admin-menu-section">
@@ -128,6 +149,13 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 <span>Quản lý Hoa hồng</span>
+                            </a>
+
+                            <a href="{{ route('admin.discounts.index') }}" class="sidebar-link {{ request()->routeIs('admin.discounts.*') ? 'active' : '' }}" data-tooltip="Chiết khấu theo Bậc">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                                <span>Chiết khấu theo Bậc</span>
                             </a>
                         </div>
                     @endif
@@ -213,6 +241,14 @@
         handleLogout('mobile-logout-form');
 
         @auth
+        // Dropdown toggle functionality
+        function toggleDiscountDropdown() {
+            const dropdownMenu = document.getElementById('discountDropdownMenu');
+            if (dropdownMenu) {
+                dropdownMenu.classList.toggle('show');
+            }
+        }
+
         // Sidebar toggle functionality
         const sidebarToggle = document.getElementById('sidebar-toggle');
         const sidebar = document.getElementById('sidebar');

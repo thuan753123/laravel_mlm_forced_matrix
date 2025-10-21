@@ -6,7 +6,7 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold">{{ __('ui.orders_page.heading') }}</h1>
+                    <h1 class="text-2xl font-bold">Doanh Thu Giới Thiệu</h1>
                     <!-- <button onclick="openCreateOrderModal()" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                         {{ __('ui.orders_page.create') }}
                     </button> -->
@@ -23,7 +23,7 @@
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-600">Tổng Đơn Hàng</p>
+                                    <p class="text-sm font-medium text-gray-600">Tổng Giao Dịch</p>
                                     <p class="text-2xl font-semibold text-gray-900" id="total-orders">-</p>
                                 </div>
                             </div>
@@ -37,7 +37,7 @@
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-600">Đã Thanh Toán</p>
+                                    <p class="text-sm font-medium text-gray-600">Thành Công</p>
                                     <p class="text-2xl font-semibold text-gray-900" id="paid-orders">-</p>
                                 </div>
                             </div>
@@ -51,7 +51,7 @@
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-600">Chờ Thanh Toán</p>
+                                    <p class="text-sm font-medium text-gray-600">Đang Xử Lý</p>
                                     <p class="text-2xl font-semibold text-gray-900" id="pending-orders">-</p>
                                 </div>
                             </div>
@@ -65,7 +65,7 @@
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-600">Đã Hủy</p>
+                                    <p class="text-sm font-medium text-gray-600">Thất Bại</p>
                                     <p class="text-2xl font-semibold text-gray-900" id="cancelled-orders">-</p>
                                 </div>
                             </div>
@@ -76,9 +76,9 @@
                     <div class="bg-white shadow overflow-hidden sm:rounded-md">
                         <div class="px-4 py-5 sm:p-6">
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
-                                <h3 class="text-lg leading-6 font-medium text-gray-900">Danh Sách Thanh Toán</h3>
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">Danh Sách Giao Dịch</h3>
                                 <div class="flex gap-2 items-center">
-                                    <input id="order-search" type="text" placeholder="Tìm theo mã GD, nội dung, ngân hàng..." class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
+                                    <input id="order-search" type="text" placeholder="Tìm theo mã GD, tên người giao dịch, nội dung..." class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
                                     <select id="order-status" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
                                         <option value="">Tất cả trạng thái</option>
                                         <option value="SUCCESS">Thành công</option>
@@ -97,17 +97,17 @@
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('ui.orders_page.amount') }}</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('ui.orders_page.status') }}</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách hàng</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Tạo</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã GD</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số Tiền</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Người Giao Dịch</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Giao Dịch</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hành Động</th>
                                         </tr>
                                     </thead>
                                     <tbody id="orders-table-body" class="bg-white divide-y divide-gray-200">
                                         <tr>
-                                            <td colspan="5" class="px-6 py-4 text-center">
+                                            <td colspan="6" class="px-6 py-4 text-center">
                                                 <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mx-auto"></div>
                                             </td>
                                         </tr>
@@ -120,7 +120,7 @@
                 @else
                     <div class="text-center py-12">
                         <h2 class="text-3xl font-bold text-gray-900 mb-4">Vui lòng đăng nhập</h2>
-                        <p class="text-lg text-gray-600 mb-8">Bạn cần đăng nhập để xem đơn hàng</p>
+                        <p class="text-lg text-gray-600 mb-8">Bạn cần đăng nhập để xem doanh thu giới thiệu</p>
                         <a href="{{ route('login') }}" class="inline-flex items-center px-6 py-3 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                             {{ __('ui.auth.login') }}
                         </a>
@@ -248,13 +248,13 @@ async function loadOrdersList(page) {
                     </tr>
                 `).join('');
             } else {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Chưa có đơn hàng nào</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Chưa có giao dịch nào</td></tr>';
             }
             renderOrdersPagination(data.pagination);
         }
     } catch (error) {
         console.error('Error loading orders list:', error);
-        document.getElementById('orders-table-body').innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-500">Lỗi tải danh sách đơn hàng</td></tr>';
+        document.getElementById('orders-table-body').innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">Lỗi tải danh sách giao dịch</td></tr>';
     }
 }
 
