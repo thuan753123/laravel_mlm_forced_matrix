@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('page-title', 'Cây Ma Trận')
+@section('page-subtitle', 'Quản lý downline')
+
 @section('content')
 <div class="py-12">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -177,54 +180,58 @@
                         </div>
 
                         <!-- Search and Filter Controls -->
-                        <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                            <div class="flex-1">
+                        <div class="flex flex-col gap-4 mb-6">
+                            <div class="w-full">
                                 <input type="text" id="downline-search" placeholder="Tìm kiếm theo tên, email hoặc mã giới thiệu..."
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
                             </div>
-                            <div class="flex gap-2">
-                                <select id="sort-by" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                                    <option value="position">Sắp xếp theo vị trí</option>
-                                    <option value="users.fullname">Sắp xếp theo tên</option>
-                                    <option value="users.email">Sắp xếp theo email</option>
-                                    <option value="users.created_at">Sắp xếp theo ngày tham gia</option>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full">
+                                <select id="sort-by" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm">
+                                    <option value="position">Vị trí</option>
+                                    <option value="users.fullname">Tên</option>
+                                    <option value="users.email">Email</option>
+                                    <option value="users.created_at">Ngày tham gia</option>
                                 </select>
-                                <select id="sort-order" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                <select id="sort-order" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm">
                                     <option value="asc">Tăng dần</option>
                                     <option value="desc">Giảm dần</option>
                                 </select>
-                                <select id="per-page" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                                    <option value="10" selected>10 mỗi trang</option>
-                                    <option value="25">25 mỗi trang</option>
-                                    <option value="50">50 mỗi trang</option>
-                                    <option value="100">100 mỗi trang</option>
+                                <select id="per-page" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm">
+                                    <option value="10" selected>10/trang</option>
+                                    <option value="25">25/trang</option>
+                                    <option value="50">50/trang</option>
+                                    <option value="100">100/trang</option>
                                 </select>
                             </div>
                         </div>
 
                         <!-- Downline List Table -->
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vị trí</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avatar</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SĐT</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã GT</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tham gia</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="downline-tbody" class="bg-white divide-y divide-gray-200">
-                                    <!-- Downline data sẽ được tải bởi JavaScript -->
-                                </tbody>
-                            </table>
+                        <div class="overflow-x-auto -mx-6 sm:mx-0">
+                            <div class="inline-block min-w-full align-middle">
+                                <div class="overflow-hidden shadow-sm sm:rounded-lg">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vị trí</th>
+                                                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avatar</th>
+                                                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
+                                                <th class="hidden md:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                                <th class="hidden lg:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SĐT</th>
+                                                <th class="hidden sm:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã GT</th>
+                                                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                                                <th class="hidden xl:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tham gia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="downline-tbody" class="bg-white divide-y divide-gray-200">
+                                            <!-- Downline data sẽ được tải bởi JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Pagination Controls -->
-                        <div id="pagination-controls" class="flex items-center justify-between mt-6">
+                        <div id="pagination-controls" class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
                             <!-- Pagination sẽ được cập nhật bởi JavaScript -->
                         </div>
 
@@ -871,27 +878,27 @@ function renderDownlineTable(downlines) {
 
     tbody.innerHTML = downlines.map(downline => `
         <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 ${downline.position}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-sm font-medium text-indigo-600">
+            <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium text-indigo-600">
                     ${downline.avatar}
                 </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900">${downline.fullname}</div>
+            <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                <div class="text-xs sm:text-sm font-medium text-gray-900">${downline.fullname}</div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <td class="hidden md:table-cell px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                 ${downline.email}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                ${downline.phone_number || ''}
+            <td class="hidden lg:table-cell px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                ${downline.phone_number || '-'}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <td class="hidden sm:table-cell px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                 ${downline.referral_code}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                     downline.is_active
                         ? 'bg-green-100 text-green-800'
@@ -900,7 +907,7 @@ function renderDownlineTable(downlines) {
                     ${downline.is_active ? 'Hoạt động' : 'Không hoạt động'}
                 </span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <td class="hidden xl:table-cell px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                 ${formatDate(downline.createdAt || downline.created_at)}
             </td>
         </tr>
@@ -961,16 +968,16 @@ function renderPagination(pagination) {
     const { current_page, last_page, total, from, to } = pagination;
 
     container.innerHTML = `
-        <div class="flex items-center space-x-2">
-            <span class="text-sm text-gray-700">
+        <div class="flex items-center justify-center sm:justify-start">
+            <span class="text-xs sm:text-sm text-gray-700">
                 Hiển thị ${from}-${to} của ${total} kết quả
             </span>
         </div>
-        <div class="flex items-center space-x-1">
+        <div class="flex items-center flex-wrap justify-center gap-1">
             <button
                 onclick="loadDownlineList(${current_page - 1})"
                 ${current_page <= 1 ? 'disabled' : ''}
-                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 ${current_page <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 ${current_page <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
             >
                 Trước
             </button>
@@ -980,7 +987,7 @@ function renderPagination(pagination) {
             <button
                 onclick="loadDownlineList(${current_page + 1})"
                 ${current_page >= last_page ? 'disabled' : ''}
-                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 ${current_page >= last_page ? 'opacity-50 cursor-not-allowed' : ''}"
+                class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 ${current_page >= last_page ? 'opacity-50 cursor-not-allowed' : ''}"
             >
                 Tiếp
             </button>
@@ -994,12 +1001,12 @@ function generatePageNumbers(current, last) {
 
     // Always show first page
     if (current > 1) {
-        buttons.push(`<button onclick="loadDownlineList(1)" class="px-3 py-2 text-sm font-medium text-indigo-600 bg-white border border-gray-300 rounded-md hover:bg-indigo-50">1</button>`);
+        buttons.push(`<button onclick="loadDownlineList(1)" class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-indigo-600 bg-white border border-gray-300 rounded-md hover:bg-indigo-50">1</button>`);
     }
 
     // Show ellipsis if needed
     if (current > 3) {
-        buttons.push('<span class="px-3 py-2 text-sm font-medium text-gray-700">...</span>');
+        buttons.push('<span class="px-1 sm:px-2 py-2 text-xs sm:text-sm font-medium text-gray-700">...</span>');
     }
 
     // Show current page and adjacent pages
@@ -1007,7 +1014,7 @@ function generatePageNumbers(current, last) {
         buttons.push(`
             <button
                 onclick="loadDownlineList(${i})"
-                class="px-3 py-2 text-sm font-medium ${i === current ? 'text-white bg-indigo-600 border border-indigo-600' : 'text-indigo-600 bg-white border border-gray-300 hover:bg-indigo-50'} rounded-md"
+                class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium ${i === current ? 'text-white bg-indigo-600 border border-indigo-600' : 'text-indigo-600 bg-white border border-gray-300 hover:bg-indigo-50'} rounded-md"
             >
                 ${i}
             </button>
@@ -1016,12 +1023,12 @@ function generatePageNumbers(current, last) {
 
     // Show ellipsis if needed
     if (current < last - 2) {
-        buttons.push('<span class="px-3 py-2 text-sm font-medium text-gray-700">...</span>');
+        buttons.push('<span class="px-1 sm:px-2 py-2 text-xs sm:text-sm font-medium text-gray-700">...</span>');
     }
 
     // Always show last page
     if (current < last) {
-        buttons.push(`<button onclick="loadDownlineList(${last})" class="px-3 py-2 text-sm font-medium text-indigo-600 bg-white border border-gray-300 rounded-md hover:bg-indigo-50">${last}</button>`);
+        buttons.push(`<button onclick="loadDownlineList(${last})" class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-indigo-600 bg-white border border-gray-300 rounded-md hover:bg-indigo-50">${last}</button>`);
     }
 
     return buttons.join('');

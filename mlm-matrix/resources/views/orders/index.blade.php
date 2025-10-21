@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('page-title', 'Doanh Thu Giới Thiệu')
+@section('page-subtitle', 'Quản lý giao dịch')
+
 @section('content')
 <div class="py-12">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -75,46 +78,52 @@
                     <!-- Orders Table -->
                     <div class="bg-white shadow overflow-hidden sm:rounded-md">
                         <div class="px-4 py-5 sm:p-6">
-                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
+                            <div class="flex flex-col gap-4 mb-6">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Danh Sách Giao Dịch</h3>
-                                <div class="flex gap-2 items-center">
-                                    <input id="order-search" type="text" placeholder="Tìm theo mã GD, tên người giao dịch, nội dung..." class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
-                                    <select id="order-status" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
-                                        <option value="">Tất cả trạng thái</option>
-                                        <option value="SUCCESS">Thành công</option>
-                                        <option value="PENDING">Đang xử lý</option>
-                                        <option value="FAILED">Thất bại</option>
-                                    </select>
-                                    <select id="order-per-page" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
-                                        <option value="10">10 / trang</option>
-                                        <option value="20" selected>20 / trang</option>
-                                        <option value="50">50 / trang</option>
-                                    </select>
-                                    <button id="order-refresh" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Làm mới</button>
+                                <div class="flex flex-col gap-3">
+                                    <input id="order-search" type="text" placeholder="Tìm theo mã GD, tên người giao dịch..." class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 text-sm">
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                        <select id="order-status" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 text-sm">
+                                            <option value="">Tất cả</option>
+                                            <option value="SUCCESS">Thành công</option>
+                                            <option value="PENDING">Đang xử lý</option>
+                                            <option value="FAILED">Thất bại</option>
+                                        </select>
+                                        <select id="order-per-page" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 text-sm">
+                                            <option value="10">10/trang</option>
+                                            <option value="20" selected>20/trang</option>
+                                            <option value="50">50/trang</option>
+                                        </select>
+                                        <button id="order-refresh" class="col-span-2 sm:col-span-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm font-medium">Làm mới</button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã GD</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số Tiền</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Người Giao Dịch</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Giao Dịch</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hành Động</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="orders-table-body" class="bg-white divide-y divide-gray-200">
-                                        <tr>
-                                            <td colspan="6" class="px-6 py-4 text-center">
-                                                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mx-auto"></div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div class="overflow-x-auto -mx-4 sm:mx-0">
+                                <div class="inline-block min-w-full align-middle">
+                                    <div class="overflow-hidden shadow-sm sm:rounded-lg">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã GD</th>
+                                                    <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số Tiền</th>
+                                                    <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
+                                                    <th class="hidden md:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Người GD</th>
+                                                    <th class="hidden lg:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày GD</th>
+                                                    <th class="hidden sm:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hành Động</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="orders-table-body" class="bg-white divide-y divide-gray-200">
+                                                <tr>
+                                                    <td colspan="6" class="px-3 sm:px-6 py-4 text-center">
+                                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mx-auto"></div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
-                            <div id="orders-pagination" class="flex items-center justify-between mt-4"></div>
+                            <div id="orders-pagination" class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6"></div>
                         </div>
                     </div>
                 @else
@@ -226,29 +235,29 @@ async function loadOrdersList(page) {
             
             if (data.orders && data.orders.length > 0) {
                 tbody.innerHTML = data.orders.map(order => `
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${order.provider_txn_ref || order.id}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Intl.NumberFormat('vi-VN').format(order.amount)} VND</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900">${order.provider_txn_ref || order.id}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">${new Intl.NumberFormat('vi-VN').format(order.amount)} VND</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(order.status)}">
                                 ${getStatusText(order.status)}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td class="hidden md:table-cell px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-500">
                             <div class="flex flex-col">
                                 <span class="text-gray-900 font-medium">${order.user_fullname || '-'}</span>
-                                <span class="text-gray-500">${order.user_email || ''}</span>
-                                <span class="text-gray-400">${order.user_phone_number || ''}</span>
+                                <span class="text-gray-500 text-xs">${order.user_email || ''}</span>
+                                <span class="text-gray-400 text-xs">${order.user_phone_number || ''}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(order.pay_date || order.createdAt || order.created_at)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td class="hidden lg:table-cell px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">${formatDate(order.pay_date || order.createdAt || order.created_at)}</td>
+                        <td class="hidden sm:table-cell px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
                             ${getActionButtons(order)}
                         </td>
                     </tr>
                 `).join('');
             } else {
-                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Chưa có giao dịch nào</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="px-3 sm:px-6 py-4 text-center text-gray-500">Chưa có giao dịch nào</td></tr>';
             }
             renderOrdersPagination(data.pagination);
         }
@@ -264,10 +273,13 @@ function renderOrdersPagination(p) {
     const prevDisabled = p.current_page <= 1 ? 'opacity-50 cursor-not-allowed' : '';
     const nextDisabled = p.current_page >= p.last_page ? 'opacity-50 cursor-not-allowed' : '';
     el.innerHTML = `
-        <div class="text-sm text-gray-600">Hiển thị ${p.from}-${p.to} của ${p.total}</div>
-        <div class="flex gap-2">
-            <button class="px-3 py-2 border rounded ${prevDisabled}" ${p.current_page <= 1 ? 'disabled' : ''} onclick="loadOrdersList(${p.current_page - 1})">Trước</button>
-            <button class="px-3 py-2 border rounded ${nextDisabled}" ${p.current_page >= p.last_page ? 'disabled' : ''} onclick="loadOrdersList(${p.current_page + 1})">Tiếp</button>
+        <div class="flex items-center justify-center sm:justify-start">
+            <span class="text-xs sm:text-sm text-gray-600">Hiển thị ${p.from}-${p.to} của ${p.total}</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button class="px-2 sm:px-3 py-2 text-xs sm:text-sm border rounded hover:bg-gray-50 ${prevDisabled}" ${p.current_page <= 1 ? 'disabled' : ''} onclick="loadOrdersList(${p.current_page - 1})">Trước</button>
+            <span class="px-2 py-2 text-xs sm:text-sm font-medium text-gray-700">Trang ${p.current_page}/${p.last_page}</span>
+            <button class="px-2 sm:px-3 py-2 text-xs sm:text-sm border rounded hover:bg-gray-50 ${nextDisabled}" ${p.current_page >= p.last_page ? 'disabled' : ''} onclick="loadOrdersList(${p.current_page + 1})">Tiếp</button>
         </div>
     `;
 }

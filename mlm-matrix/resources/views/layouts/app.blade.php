@@ -7,6 +7,11 @@
 
     <title>{{ __('ui.title') }} - Hệ thống quản lý đại lý</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/webp" href="{{ asset('images/logo.webp') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo.webp') }}">
+    <link rel="shortcut icon" href="{{ asset('images/logo.webp') }}">
+
     <!-- Meta tags for social sharing -->
     <meta name="description" content="Hệ thống quản lý đại lý AI VN168 - Quản lý ma trận, đơn hàng và hoa hồng">
     <meta name="keywords" content="đại lý AI, VN168, quản lý ma trận, MLM, hoa hồng">
@@ -17,7 +22,7 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="{{ __('ui.title') }} - Hệ thống quản lý đại lý">
     <meta property="og:description" content="Hệ thống quản lý đại lý AI VN168 - Quản lý ma trận, đơn hàng và hoa hồng">
-    <meta property="og:image" content="{{ asset('images/og-image.jpg') }}">
+    <meta property="og:image" content="{{ asset('images/logo.webp') }}">
     <meta property="og:site_name" content="{{ __('ui.title') }}">
     <meta property="og:locale" content="vi_VN">
     
@@ -26,12 +31,12 @@
     <meta property="twitter:url" content="{{ url()->current() }}">
     <meta property="twitter:title" content="{{ __('ui.title') }} - Hệ thống quản lý đại lý">
     <meta property="twitter:description" content="Hệ thống quản lý đại lý AI VN168 - Quản lý ma trận, đơn hàng và hoa hồng">
-    <meta property="twitter:image" content="{{ asset('images/og-image.jpg') }}">
+    <meta property="twitter:image" content="{{ asset('images/logo.webp') }}">
     
     <!-- Zalo -->
     <meta property="zalo:title" content="{{ __('ui.title') }} - Hệ thống quản lý đại lý">
     <meta property="zalo:description" content="Hệ thống quản lý đại lý AI VN168 - Quản lý ma trận, đơn hàng và hoa hồng">
-    <meta property="zalo:image" content="{{ asset('images/og-image.jpg') }}">
+    <meta property="zalo:image" content="{{ asset('images/logo.webp') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -58,18 +63,36 @@
 <body class="font-sans antialiased bg-gray-100">
     <div class="min-h-screen flex">
         @auth
+        <!-- Mobile Hamburger Button (Outside Sidebar) -->
+        <button id="mobile-hamburger" type="button" aria-label="Open Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        
+        <!-- Mobile Overlay -->
+        <div id="mobile-overlay"></div>
+        
         <!-- Sidebar -->
         <div id="sidebar">
             <!-- Logo -->
             <div class="sidebar-header">
-                <a href="{{ route('dashboard') }}" class="flex items-center">
+                <a href="{{ route('dashboard') }}">
+                    <img src="{{ asset('images/logo.webp') }}" alt="{{ __('ui.title') }}" id="sidebar-logo">
                     <span id="sidebar-title">{{ __('ui.title') }}</span>
                 </a>
                 <!-- Toggle Button -->
                 <button id="sidebar-toggle" type="button" aria-label="Toggle Sidebar">
+                    <!-- Desktop Icon (Arrow) -->
                     <svg id="sidebar-toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
                     </svg>
+                    <!-- Mobile Icon (Hamburger) -->
+                    <div id="sidebar-toggle-hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
                 </button>
             </div>
 
@@ -187,6 +210,35 @@
 
         <!-- Page Content -->
         <main id="main-content" class="flex-1 bg-gray-100 transition-all duration-300 ease-in-out">
+            @auth
+            <!-- Page Header with Logo -->
+            <div class="bg-white shadow-sm sticky top-0 z-10">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="{{ asset('images/logo.webp') }}" alt="{{ __('ui.title') }}" class="h-10 w-10 object-contain">
+                            <div>
+                                <h1 class="text-xl font-bold text-gray-900">@yield('page-title', __('ui.title'))</h1>
+                                <p class="text-sm text-gray-500">@yield('page-subtitle', 'Hệ thống quản lý đại lý')</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <!-- User info on desktop -->
+                            <div class="hidden md:flex items-center gap-2">
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-gray-900">{{ Auth::user()->fullname ?? Auth::user()->email }}</p>
+                                    <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
+                                </div>
+                                <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                    <span class="text-sm font-medium text-indigo-600">{{ strtoupper(substr(Auth::user()->fullname ?? Auth::user()->email, 0, 2)) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endauth
+            
             @yield('content')
         </main>
     </div>
@@ -244,8 +296,20 @@
         // Dropdown toggle functionality
         function toggleDiscountDropdown() {
             const dropdownMenu = document.getElementById('discountDropdownMenu');
+            const dropdown = dropdownMenu ? dropdownMenu.closest('.sidebar-dropdown') : null;
+            
             if (dropdownMenu) {
+                const isOpen = dropdownMenu.classList.contains('show');
                 dropdownMenu.classList.toggle('show');
+                
+                // Toggle active state on parent for arrow rotation
+                if (dropdown) {
+                    if (isOpen) {
+                        dropdown.classList.remove('active');
+                    } else {
+                        dropdown.classList.add('active');
+                    }
+                }
             }
         }
 
@@ -303,18 +367,26 @@
 
         // Toggle sidebar function
         const toggleSidebar = () => {
-            const isCollapsed = sidebar.classList.contains('collapsed');
-
-            if (isCollapsed) {
-                sidebar.classList.remove('collapsed');
-                saveSidebarState(false);
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                // Mobile: close sidebar (hamburger opens, toggle closes)
+                closeMobileMenu();
             } else {
-                sidebar.classList.add('collapsed');
-                saveSidebarState(true);
-            }
+                // Desktop: toggle sidebar collapsed/expanded
+                const isCollapsed = sidebar.classList.contains('collapsed');
 
-            // Update width after transition
-            setTimeout(updateSidebarWidth, 50);
+                if (isCollapsed) {
+                    sidebar.classList.remove('collapsed');
+                    saveSidebarState(false);
+                } else {
+                    sidebar.classList.add('collapsed');
+                    saveSidebarState(true);
+                }
+
+                // Update width after transition
+                setTimeout(updateSidebarWidth, 50);
+            }
         };
 
         // Handle window resize
@@ -345,17 +417,84 @@
             }
         };
 
+        // Mobile menu functionality
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        const mobileHamburger = document.getElementById('mobile-hamburger');
+
+        const openMobileMenu = () => {
+            sidebar.classList.add('mobile-open');
+            if (mobileHamburger) {
+                mobileHamburger.classList.add('hidden');
+            }
+            if (mobileOverlay) {
+                mobileOverlay.style.display = 'block';
+                setTimeout(() => {
+                    mobileOverlay.classList.add('active');
+                }, 10);
+            }
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closeMobileMenu = () => {
+            sidebar.classList.remove('mobile-open');
+            if (mobileHamburger) {
+                mobileHamburger.classList.remove('hidden');
+            }
+            if (mobileOverlay) {
+                mobileOverlay.classList.remove('active');
+                setTimeout(() => {
+                    mobileOverlay.style.display = 'none';
+                }, 300);
+            }
+            document.body.style.overflow = '';
+        };
+
+        const toggleMobileMenu = () => {
+            if (sidebar.classList.contains('mobile-open')) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
+        };
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
             initializeSidebar();
+
+            // Mobile overlay event listener
+            if (mobileOverlay) {
+                mobileOverlay.addEventListener('click', closeMobileMenu);
+            }
+
+            // Close mobile menu when clicking a link
+            const sidebarLinks = sidebar.querySelectorAll('.sidebar-link, .sidebar-dropdown-item');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        closeMobileMenu();
+                    }
+                });
+            });
 
             // Add event listeners
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', toggleSidebar);
             }
+            
+            // Mobile hamburger button
+            if (mobileHamburger) {
+                mobileHamburger.addEventListener('click', openMobileMenu);
+            }
 
             document.addEventListener('click', handleOutsideClick);
             window.addEventListener('resize', handleResize);
+
+            // Close mobile menu on resize to desktop
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768 && sidebar.classList.contains('mobile-open')) {
+                    closeMobileMenu();
+                }
+            });
 
             // Update active states after page load
             setTimeout(() => {

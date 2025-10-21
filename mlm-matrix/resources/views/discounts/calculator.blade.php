@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('title', 'Máy tính Chiết khấu')
+@section('page-title', 'Máy Tính Chiết Khấu')
+@section('page-subtitle', 'Tính toán chiết khấu theo doanh thu')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 lg:p-8">
